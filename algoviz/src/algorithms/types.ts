@@ -11,6 +11,7 @@ export type Step = {
   active?: number[];
   metrics: Metrics;
   note?: string;
+  swap?: [number, number];
 };
 
 export type AlgorithmDefinition = {

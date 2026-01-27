@@ -49,12 +49,12 @@ export const BubbleSort: AlgorithmDefinition = {
         pushStep(steps, A, 2, metrics, [j, j + 1]);
 
         if (A[j] > A[j + 1]) {
-          pushStep(steps, A, 3, metrics, [j, j + 1], "Swap");
+          pushStep(steps, A, 3, metrics, [j, j + 1], "Swap", [j, j + 1]);
           const tmp = A[j];
           A[j] = A[j + 1];
           A[j + 1] = tmp;
           metrics.swaps += 1;
-          pushStep(steps, A, 3, metrics, [j, j + 1], "Swapped");
+          pushStep(steps, A, 3, metrics, [j, j + 1], "Swapped", [j, j + 1]);
         }
       }
     }
