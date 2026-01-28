@@ -31,7 +31,17 @@ export default function QuickSortPage() {
   return (
     <AlgorithmLayout
       title="Quick Sort"
-      left={<ArrayBars step={step ?? { array: currentArray, line: 0, metrics: { comparisons: 0, swaps: 0 } }} />}
+      left={
+        <ArrayBars
+          step={
+            step ?? {
+              array: currentArray,
+              line: 0,
+              metrics: { comparisons: 0, swaps: 0 },
+            }
+          }
+        />
+      }
       right={
         <div className="space-y-4">
           <PseudocodePanel pseudocode={QuickSort.pseudocode} activeLine={step?.line ?? 0} />
@@ -54,6 +64,7 @@ export default function QuickSortPage() {
                 setSize(v);
               }}
             />
+
             <button
               className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
               onClick={() => setSeedArray(makeRandomArray(size))}

@@ -2,12 +2,12 @@ import { create } from "zustand";
 import type { Step } from "../algorithms/types";
 
 type PlayerState = {
-  steps: Step[];
+  steps: Step<any>[];
   index: number;
   isPlaying: boolean;
   speedMs: number;
 
-  setSteps: (steps: Step[]) => void;
+  setSteps: (steps: Step<any>[]) => void;
   setIndex: (i: number) => void;
 
   next: () => void;
@@ -19,7 +19,7 @@ type PlayerState = {
 };
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
-  steps: [],
+  steps: [] as Step<any>[],
   index: 0,
   isPlaying: false,
   speedMs: 300,

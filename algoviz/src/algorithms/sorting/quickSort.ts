@@ -1,18 +1,26 @@
 import type { AlgorithmDefinition, Step } from "../types";
 
+type QuickMeta = {
+  pivotIndex: number;
+  lo: number;
+  hi: number;
+  iIndex?: number;
+  jIndex?: number;
+};
+
 function clone(arr: number[]) {
   return arr.slice();
 }
 
 function pushStep(
-  steps: Step[],
+  steps: Step<QuickMeta>[],
   arr: number[],
   line: number,
-  metrics: Step["metrics"],
+  metrics: Step<QuickMeta>["metrics"],
   active?: number[],
   note?: string,
   swap?: [number, number],
-  pivotIndex?: number
+  meta?: QuickMeta
 ) {
   steps.push({
     array: clone(arr),
@@ -21,11 +29,11 @@ function pushStep(
     metrics: { ...metrics },
     note,
     swap,
-    pivotIndex,
+    meta,
   });
 }
 
-export const QuickSort: AlgorithmDefinition = {
+export const QuickSort: AlgorithmDefinition<QuickMeta> = {
   id: "quick-sort",
   name: "Quick Sort",
   category: "sorting",
@@ -45,72 +53,89 @@ export const QuickSort: AlgorithmDefinition = {
     "  swap(A[i], A[hi])",
     "  return i",
   ],
+
   generateSteps: (input: number[]) => {
     const A = clone(input);
-    const steps: Step[] = [];
+    const steps: Step<QuickMeta>[] = [];
     const metrics = { comparisons: 0, swaps: 0 };
 
+    // start
     pushStep(steps, A, 0, metrics, undefined, "Start");
 
     function partition(lo: number, hi: number): number {
-      // pivot starts at hi for this partition
+      // In Lomuto partition, pivot starts at hi (and later moves to i)
       let pivotIdx = hi;
 
-      // helper: every partition step includes pivotIdx so pivot stays red
+      // Helper that always attaches meta for the current partition frame
       const ps = (
         line: number,
         active?: number[],
         note?: string,
-        swap?: [number, number]
-      ) => pushStep(steps, A, line, metrics, active, note, swap, pivotIdx);
+        swap?: [number, number],
+        iIndex?: number,
+        jIndex?: number
+      ) => {
+        const meta: QuickMeta = {
+          pivotIndex: pivotIdx,
+          lo,
+          hi,
+          iIndex,
+          jIndex,
+        };
+        pushStep(steps, A, line, metrics, active, note, swap, meta);
+      };
 
       ps(6, [lo, hi], `partition(lo=${lo}, hi=${hi})`);
       ps(7, [hi], `pivot = A[${hi}] = ${A[hi]}`);
+
       const pivot = A[hi];
 
-      ps(8, [lo, hi], `i = ${lo}`);
       let i = lo;
+      ps(8, [i], `i = ${i}`, undefined, i);
 
       for (let j = lo; j <= hi - 1; j++) {
-        // Compare A[j] to pivot (keep pivot red)
-        ps(9, [j, i], `j = ${j}, compare A[j] to pivot`);
-        metrics.comparisons += 1;
+        ps(9, [j], `j = ${j}`, undefined, i, j);
 
-        ps(10, [j], `A[${j}] = ${A[j]} < pivot?`);
+        metrics.comparisons += 1;
+        ps(10, [j, hi], `A[${j}] = ${A[j]} < pivot?`, undefined, i, j);
 
         if (A[j] < pivot) {
-          ps(11, [i, j], `swap A[${i}] and A[${j}]`, [i, j]);
+          // swap A[i] and A[j]
+          ps(11, [i, j], `swap A[${i}] and A[${j}]`, [i, j], i, j);
 
           const tmp = A[i];
           A[i] = A[j];
           A[j] = tmp;
           metrics.swaps += 1;
 
-          ps(11, [i, j], "swapped", [i, j]);
+          ps(11, [i, j], "swapped", [i, j], i, j);
 
           i++;
-          ps(11, [i], `i++ → ${i}`);
+          ps(11, [i], `i++ → ${i}`, undefined, i, j);
         }
       }
 
-      // Place pivot: swap A[i] and A[hi]
-      ps(12, [i, hi], `place pivot: swap A[${i}] and A[${hi}]`, [i, hi]);
+      // place pivot by swapping A[i] and A[hi]
+      ps(12, [i, hi], `place pivot: swap A[${i}] and A[${hi}]`, [i, hi], i);
 
       const tmp = A[i];
       A[i] = A[hi];
       A[hi] = tmp;
       metrics.swaps += 1;
 
-      // pivot moved from hi to i — keep pivot red at its new location
+      // pivot has moved from hi to i
       pivotIdx = i;
 
-      ps(12, [i], `pivot placed at index ${i}`, [i, hi]);
-      ps(13, [i], `return p = ${i}`);
+      ps(12, [i], `pivot placed at index ${i}`, [i, hi], i);
+      ps(13, [i], `return p = ${i}`, undefined, i);
+
       return i;
     }
 
     function quicksort(lo: number, hi: number) {
+      // quicksort frame step (no meta needed here — only partition uses meta)
       pushStep(steps, A, 1, metrics, [lo, hi], `quicksort(lo=${lo}, hi=${hi})`);
+
       if (lo >= hi) {
         pushStep(steps, A, 1, metrics, [lo, hi], "base case return");
         return;
