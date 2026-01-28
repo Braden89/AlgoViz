@@ -12,6 +12,7 @@ export type Step = {
   metrics: Metrics;
   note?: string;
   swap?: [number, number];
+  pivotIndex?: number;
 };
 
 export type AlgorithmDefinition = {

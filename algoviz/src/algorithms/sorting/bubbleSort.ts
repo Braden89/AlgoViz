@@ -5,13 +5,7 @@ function clone(arr: number[]) {
 }
 
 function pushStep(
-  steps: Step[],
-  arr: number[],
-  line: number,
-  metrics: Step["metrics"],
-  active?: number[],
-  note?: string
-) {
+steps: Step[], arr: number[], line: number, metrics: Step["metrics"], active?: number[], note?: string, p0?: number[]) {
   steps.push({
     array: clone(arr),
     line,
