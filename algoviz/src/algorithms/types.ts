@@ -24,3 +24,26 @@ export type AlgorithmDefinition<M extends StepMeta = undefined> = {
   pseudocode: string[];
   generateSteps: (input: number[]) => Step<M>[];
 };
+
+// src/algorithms/sorting/treeSort.ts (or a separate types file)
+
+export type TreeNode = {
+  id: string;
+  value: number;
+  left?: string;
+  right?: string;
+  x?: number;
+  y?: number;
+};
+
+export type TreeSortMeta = {
+  phase: "insert" | "traverse" | "done";
+  insertingValue?: number;
+  currentNodeId?: string;
+  highlightNodeIds?: string[];
+  tree: {
+    rootId?: string;
+    nodes: Record<string, TreeNode>;
+  };
+  output: number[];
+};

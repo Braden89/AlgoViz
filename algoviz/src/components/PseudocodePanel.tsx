@@ -14,7 +14,7 @@ export function PseudocodePanel(props: { pseudocode: string[]; activeLine: numbe
               ].join(" ")}
             >
               <span className="w-6 text-right text-zinc-500">{i + 1}</span>
-              <span>{line}</span>
+              <span className="whitespace-pre">{line}</span>
             </div>
           );
         })}
