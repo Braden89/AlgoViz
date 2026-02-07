@@ -3,6 +3,7 @@ import type { AlgorithmDefinition, Step } from "../types";
 type TreeNode = {
   id: string;
   value: number;
+  parent?: string;
   left?: string;
   right?: string;
   x?: number;
@@ -104,6 +105,7 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
     const nodes: Record<string, TreeNode> = {};
     const output: number[] = [];
 
+  
     const snapshot = (phase: TreeSortMeta["phase"], patch?: Partial<TreeSortMeta>): TreeSortMeta => {
       layoutTree(rootId, nodes);
       return {
@@ -114,6 +116,17 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
       };
     };
 
+    function pathTo(id: string | undefined): string[] {
+      const path: string[] = [];
+      let cur = id;
+      while (cur) {
+        path.push(cur);
+        cur = nodes[cur]?.parent;
+      }
+      path.reverse();
+      return path;
+    }
+
     // start
     pushStep(steps, A, 0, metrics, undefined, "Start", undefined, snapshot("insert"));
 
@@ -122,48 +135,41 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
 
     for (let idx = 0; idx < A.length; idx++) {
       const x = A[idx];
-      pushStep(
-        steps,
-        A,
-        2,
-        metrics,
-        [idx],
-        `for x in A: x = ${x}`,
-        undefined,
-        snapshot("insert", { insertingValue: x })
-      );
+      const activeIdx = [idx];
+
+      const ps = (
+        arr: number[],
+        line: number,
+        note?: string,
+        metaPatch?: Partial<TreeSortMeta>
+      ) => {
+        pushStep(
+          steps,
+          arr,
+          line,
+          metrics,
+          activeIdx,
+          note,
+          undefined,
+          snapshot("insert", { insertingValue: x, ...metaPatch })
+        );
+      };
+
+      ps(A, 2, `for x in A: x = ${x}`);
 
       // bstInsert
-      pushStep(
-        steps,
-        A,
-        3,
-        metrics,
-        undefined,
-        `bstInsert(root, ${x})`,
-        undefined,
-        snapshot("insert", { insertingValue: x })
-      );
+
+      ps(A, 3, `bstInsert(root, ${x})`);
 
       if (!rootId) {
         const id = newId();
-        nodes[id] = { id, value: x };
+        nodes[id] = { id, value: x, parent: undefined };
         rootId = id;
 
-        pushStep(
-          steps,
-          A,
-          8,
-          metrics,
-          undefined,
-          `node == null → new Node(${x}) (root)`,
-          undefined,
-          snapshot("insert", {
-            insertingValue: x,
+         ps(A, 8, `node == null → new Node(${x}) (root)`, {
             currentNodeId: id,
             highlightNodeIds: [id],
-          })
-        );
+          });
         continue;
       }
 
@@ -174,95 +180,46 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
 
         // compare x < cur.value
         metrics.comparisons += 1;
-        pushStep(
-          steps,
-          A,
-          9,
-          metrics,
-          undefined,
-          `${x} < ${cur.value}?`,
-          undefined,
-          snapshot("insert", {
-            insertingValue: x,
-            currentNodeId: curId,
-            highlightNodeIds: [curId],
-          })
-        );
+        ps(A, 9, `${x} < ${cur.value}?`, {
+          currentNodeId: curId,
+          highlightNodeIds: [curId],
+        });
+
 
         if (x < cur.value) {
           if (!cur.left) {
             const id = newId();
-            nodes[id] = { id, value: x };
+            nodes[id] = { id, value: x, parent: curId };
             cur.left = id;
 
-            pushStep(
-              steps,
-              A,
-              9,
-              metrics,
-              undefined,
-              `true → insert ${x} as LEFT child of ${cur.value}`,
-              undefined,
-              snapshot("insert", {
-                insertingValue: x,
-                currentNodeId: curId,
-                highlightNodeIds: [curId, id],
-              })
-            );
+            ps(A, 9, `true → insert ${x} as LEFT child of ${cur.value}`, {
+              currentNodeId: curId,
+              highlightNodeIds: [curId, id],
+            });
             break;
           } else {
-            pushStep(
-              steps,
-              A,
-              9,
-              metrics,
-              undefined,
-              `true → move left`,
-              undefined,
-              snapshot("insert", {
-                insertingValue: x,
-                currentNodeId: curId,
-                highlightNodeIds: [curId, cur.left],
-              })
-            );
+            ps(A, 9, `true → go LEFT`, {
+              currentNodeId: curId,
+              highlightNodeIds: [curId, cur.left],
+            });
             curId = cur.left;
           }
         } else {
           if (!cur.right) {
             const id = newId();
-            nodes[id] = { id, value: x };
+            nodes[id] = { id, value: x, parent: curId };
             cur.right = id;
 
-            pushStep(
-              steps,
-              A,
-              10,
-              metrics,
-              undefined,
-              `false → insert ${x} as RIGHT child of ${cur.value}`,
-              undefined,
-              snapshot("insert", {
-                insertingValue: x,
-                currentNodeId: curId,
-                highlightNodeIds: [curId, id],
-              })
-            );
+            ps(A, 10, `false → insert ${x} as RIGHT child of ${cur.value}`, {
+              currentNodeId: curId,
+              highlightNodeIds: [curId, id],
+            });
             break;
           } else {
-            pushStep(
-              steps,
-              A,
-              10,
-              metrics,
-              undefined,
-              `false → move right`,
-              undefined,
-              snapshot("insert", {
-                insertingValue: x,
-                currentNodeId: curId,
-                highlightNodeIds: [curId, cur.right],
-              })
-            );
+            ps(A, 10, `false → go RIGHT`, {
+              currentNodeId: curId,
+              highlightNodeIds: [curId, cur.right],
+            });
             curId = cur.right;
           }
         }
@@ -298,7 +255,7 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         undefined,
         `inorder(left of ${n.value})`,
         undefined,
-        snapshot("traverse", { currentNodeId: id, highlightNodeIds: [id] })
+        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) })
       );
       inorder(n.left);
 
@@ -311,7 +268,7 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         undefined,
         `output.push(${n.value})`,
         undefined,
-        snapshot("traverse", { currentNodeId: id, highlightNodeIds: [id] })
+        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) })
       );
 
       pushStep(
@@ -322,7 +279,7 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         undefined,
         `inorder(right of ${n.value})`,
         undefined,
-        snapshot("traverse", { currentNodeId: id, highlightNodeIds: [id] })
+        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) })
       );
       inorder(n.right);
     }

@@ -1,8 +1,9 @@
 import React from "react";
-import type { TreeSortMeta } from "../algorithms/types.ts"; // or wherever you put it
+import type { TreeSortMeta } from "../algorithms/trees/treeSort.ts"; 
 
 export function TreeView(props: { meta?: TreeSortMeta }) {
   const meta = props.meta;
+  
 
   if (!meta?.tree.rootId) {
     return <div className="text-sm text-zinc-400">Tree is empty.</div>;
@@ -10,6 +11,8 @@ export function TreeView(props: { meta?: TreeSortMeta }) {
 
   const { nodes } = meta.tree;
   const highlight = new Set(meta.highlightNodeIds ?? []);
+  const current = meta.currentNodeId;
+
 
   // Build edges
   const edges: { from: string; to: string }[] = [];
@@ -53,18 +56,20 @@ export function TreeView(props: { meta?: TreeSortMeta }) {
         {Object.values(nodes).map((n) => {
           const x = (n.x ?? 0) + 50;
           const y = (n.y ?? 0) + 50;
-          const hot = highlight.has(n.id);
+
+          const isPath = highlight.has(n.id);
+          const isCurrent = current === n.id;
 
           return (
             <g key={n.id}>
               <circle
                 cx={x}
                 cy={y}
-                r={22}
+                r={isCurrent ? 26 : 22}
                 stroke="currentColor"
-                strokeWidth={2}
+                strokeWidth={isCurrent ? 4 : 2}
                 fill="transparent"
-                opacity={hot ? 1 : 0.6}
+                opacity={isPath ? 1 : 0.35}
               />
               <text x={x} y={y + 5} textAnchor="middle" fontSize={14} fill="currentColor">
                 {n.value}

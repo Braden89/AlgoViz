@@ -25,11 +25,10 @@ export type AlgorithmDefinition<M extends StepMeta = undefined> = {
   generateSteps: (input: number[]) => Step<M>[];
 };
 
-// src/algorithms/sorting/treeSort.ts (or a separate types file)
-
 export type TreeNode = {
   id: string;
   value: number;
+  parent?: string;
   left?: string;
   right?: string;
   x?: number;
