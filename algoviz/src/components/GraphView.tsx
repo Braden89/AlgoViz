@@ -41,7 +41,7 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
     // When the graph changes, reset view so it starts centered
     setZoom(1);
     setPan({ x: 0, y: 0 });
-  }, [graph]);
+  }, [graphKey]);
 
   const visited = new Set(step?.visitedIds ?? []);
   const discovered = new Set((step as any)?.discoveredIds ?? []); // optional field
@@ -56,29 +56,25 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
 
   // Compute bounds of content
   const bounds = useMemo(() => {
-  const all = Object.values(nodes);
+    const all = Object.values(nodes);
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
 
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const n of all) {
+      const x = n.x ?? 0;
+      const y = n.y ?? 0;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+    }
 
-  for (const n of all) {
-    const x = n.x ?? 0;
-    const y = n.y ?? 0;
-    if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-
-    minX = Math.min(minX, x);
-    maxX = Math.max(maxX, x);
-    minY = Math.min(minY, y);
-    maxY = Math.max(maxY, y);
-  }
-
-  if (!Number.isFinite(minX)) return { minX: 0, maxX: 1, minY: 0, maxY: 1 };
-  return { minX, maxX, minY, maxY };
-}, [
-  Object.keys(nodes).length,
-  edges.length,
-  // small “fingerprint” so changes in positions trigger recompute even if objects are reused
-  ...Object.values(nodes).slice(0, 5).map((n) => `${n.id}:${n.x},${n.y}`),
-]);
+    if (!Number.isFinite(minX)) return { minX: 0, maxX: 1, minY: 0, maxY: 1 };
+    return { minX, maxX, minY, maxY };
+  }, [graphKey]);
 
 
   // Padding + SVG size
@@ -174,22 +170,23 @@ const pad = maxNodeR + maxStroke + extraPad;
       </div>
 
       <div className="overflow-auto">
-  <svg
-  width={width}
-  height={height}
-  onWheel={onWheel}
-  onMouseDown={onMouseDown}
-  onMouseMove={onMouseMove}
-  onMouseUp={endPan}
-  onMouseLeave={endPan}
-  style={{
-  display: "block",
-  width: `${width}px`,
-  height: `${height}px`,
-  minWidth: `${width}px`,
-  minHeight: `${height}px`,
-}}
-
+        <svg
+          key={graphKey}
+          width={width}
+          height={height}
+          onWheel={onWheel}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={endPan}
+          onMouseLeave={endPan}
+          style={{
+            cursor: isPanningRef.current ? "grabbing" : "grab",
+            display: "block",
+            width: `${width}px`,
+            height: `${height}px`,
+            minWidth: `${width}px`,
+            minHeight: `${height}px`,
+          }}
     >
     <g transform={`translate(${cx}, ${cy}) translate(${pan.x}, ${pan.y}) scale(${zoom}) translate(${-cx}, ${-cy})`}>
             {/* edges */}
