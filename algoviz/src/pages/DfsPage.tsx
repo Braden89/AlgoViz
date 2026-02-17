@@ -8,7 +8,7 @@ import { usePlayerStore } from "../state/playerStore";
 
 import { GraphView } from "../components/GraphView";
 import type { Graph, SearchStep } from "../algorithms/search/searchtypes";
-import type { Step } from "../types";
+import type { Step } from "../algorithms/types";
 
 import { DFS } from "../algorithms/search/dfs";
 
