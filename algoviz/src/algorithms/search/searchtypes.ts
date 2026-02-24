@@ -54,6 +54,8 @@ export type SearchStep = {
   // Edge highlighting
   activeEdgeId?: EdgeId;
   exploredEdgeIds?: EdgeId[];
+  prunedEdgeIds?: EdgeId[];
+  pathEdgeIds?: EdgeId[];
 
   // Parent tree (path reconstruction)
   parent: Record<string, string | null>;

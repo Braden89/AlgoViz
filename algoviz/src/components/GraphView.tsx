@@ -50,6 +50,31 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
   const exploredEdges = new Set(step?.exploredEdgeIds ?? []);
   const activeEdge = step?.activeEdgeId;
 
+    // --- Path (green) ---
+  const pathNodes = step?.pathToGoal ?? [];
+  const pathNodeSet = new Set(pathNodes);
+
+  const pathEdgeSet = useMemo(() => {
+    const s = new Set<EdgeId>();
+    for (let i = 0; i < pathNodes.length - 1; i++) {
+      s.add(edgeId(pathNodes[i], pathNodes[i + 1], graph.directed));
+    }
+    return s;
+  }, [pathNodes.join("|"), graph.directed]);
+
+  // --- Tree edges from parent map (helps distinguish traversal tree) ---
+  const treeEdgeSet = useMemo(() => {
+    const s = new Set<EdgeId>();
+    const p = step?.parent ?? {};
+    for (const child of Object.keys(p)) {
+      const par = p[child];
+      if (!par) continue;
+      s.add(edgeId(par, child, graph.directed));
+    }
+    return s;
+  }, [step?.parent, graph.directed]);
+
+
   const current = step?.currentNodeId;
   const neighbor = step?.neighborId;
   const goal = step?.goalId;
@@ -204,13 +229,37 @@ const pad = maxNodeR + maxStroke + extraPad;
 
               const isActive = activeEdge === id;
               const isExplored = exploredEdges.has(id);
-              const isTreeEdge =
-                step?.parent &&
-                (step.parent[e.to] === e.from ||
-                  (!graph.directed && step.parent[e.from] === e.to));
+              const isTreeEdge = treeEdgeSet.has(id);
+              const isPathEdge = pathEdgeSet.has(id);
 
-              const opacity = isActive ? 1 : isTreeEdge ? 0.8 : isExplored ? 0.45 : 0.18;
-              const strokeWidth = isActive ? 4 : isTreeEdge ? 3 : 2;
+              const prunedEdges = new Set(step?.prunedEdgeIds ?? []);
+              const pathEdges = new Set(step?.pathEdgeIds ?? []);
+
+              const isPruned = prunedEdges.has(id) ;
+              
+
+
+
+              const stroke =
+                isPathEdge ? "rgb(34 197 94)" :
+                isPruned ? "rgb(239 68 68)" :
+                "currentColor";
+
+              const opacity =
+                isActive ? 1 :
+                isPathEdge ? 0.95 :
+                isPruned ? 0.75 :
+                isTreeEdge ? 0.55 :
+                isExplored ? 0.30 :
+                0.14;
+
+              const strokeWidth =
+                isActive ? 4 :
+                isPathEdge ? 4 :
+                isPruned ? 3 :
+                isTreeEdge ? 2.5 :
+                2;
+
 
               
 
@@ -221,7 +270,7 @@ const pad = maxNodeR + maxStroke + extraPad;
                   y1={ay}
                   x2={bx}
                   y2={by}
-                  stroke="currentColor"
+                  stroke={stroke}
                   opacity={opacity}
                   strokeWidth={strokeWidth}
                 />
@@ -240,6 +289,7 @@ const pad = maxNodeR + maxStroke + extraPad;
               const isVisited = visited.has(n.id);
               const isDiscovered = discovered.has(n.id);
               const isPath = path.has(n.id);
+              const isPrunedNode = step?.foundGoal && visited.has(n.id) && !isPath;
 
               const strong = isCurrent || isGoal || isPath || isFrontier || isNeighbor;
               const opacity = strong ? 1 : isVisited ? 0.35 : isDiscovered ? 0.55 : 0.22;
@@ -257,13 +307,18 @@ const pad = maxNodeR + maxStroke + extraPad;
                 isFrontier ? 3 :
                 2;
 
+              const stroke =
+                isPath ? "rgb(34 197 94)" :
+                isPrunedNode ? "rgb(239 68 68)" :
+                "currentColor";
+
               return (
                 <g key={n.id}>
                   <circle
                     cx={x}
                     cy={y}
                     r={r}
-                    stroke="currentColor"
+                    stroke={stroke}
                     strokeWidth={strokeWidth}
                     fill="transparent"
                     opacity={opacity}
