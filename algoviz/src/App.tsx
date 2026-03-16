@@ -9,6 +9,7 @@ import QuickSortPage from "./pages/QuickSortPage";
 import TreeSortPage from "./pages/TreeSortPage"; 
 import GraphsPage from "./pages/GraphsPage";
 import DfsPage from "./pages/DfsPage";
+import BfsPage from "./pages/BfsPage";
 
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
       <Route path="/algorithms/sorting/tree" element={<TreeSortPage />} />
       <Route path="/graphs" element={<GraphsPage />} />
       <Route path="/graphs/dfs" element={<DfsPage />} />
+      <Route path="/graphs/bfs" element={<BfsPage />} />
 
       {/* Optional: redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" replace />} />

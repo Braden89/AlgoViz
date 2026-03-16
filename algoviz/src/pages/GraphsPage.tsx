@@ -11,7 +11,7 @@ const graphAlgorithms = [
     name: "Breadth-First Search (BFS)",
     description: "Explore level by level using a queue.",
     to: "/graphs/bfs",
-    status: "soon" as const,
+    status: "ready" as const,
   },
   // Later, just add more:
   // { name: "Dijkstra", description: "...", to: "/graphs/dijkstra", status: "soon" },
