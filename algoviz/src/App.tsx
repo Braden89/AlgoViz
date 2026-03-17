@@ -7,6 +7,7 @@ import BubbleSortPage from "./pages/BubbleSortPage";
 import InsertionSortPage from "./pages/InsertionSortPage";
 import QuickSortPage from "./pages/QuickSortPage";
 import TreeSortPage from "./pages/TreeSortPage"; 
+import BogoSortPage from "./pages/BogoSortPage";
 import GraphsPage from "./pages/GraphsPage";
 import DfsPage from "./pages/DfsPage";
 import BfsPage from "./pages/BfsPage";
@@ -24,6 +25,7 @@ export default function App() {
       <Route path="/algorithms/sorting/insertion" element={<InsertionSortPage />} />
       <Route path="/algorithms/sorting/quick" element={<QuickSortPage />} />
       <Route path="/algorithms/sorting/tree" element={<TreeSortPage />} />
+      <Route path="/algorithms/sorting/bogo" element={<BogoSortPage />} />
       <Route path="/graphs" element={<GraphsPage />} />
       <Route path="/graphs/dfs" element={<DfsPage />} />
       <Route path="/graphs/bfs" element={<BfsPage />} />

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 
 type AlgoItem = {
   name: string;
@@ -14,25 +14,31 @@ const SORTING_ALGORITHMS: AlgoItem[] = [
     name: "Bubble Sort",
     path: "/algorithms/sorting/bubble",
     description: "Simple comparison-based sort. Easy to understand, slow in practice.",
-    tags: ["O(n²)", "Stable"],
+    tags: ["O(n^2)", "Stable"],
   },
   {
     name: "Insertion Sort",
     path: "/algorithms/sorting/insertion",
     description: "Builds a sorted prefix. Very fast on nearly-sorted data.",
-    tags: ["O(n²) worst", "O(n) best", "Stable"],
+    tags: ["O(n^2) worst", "O(n) best", "Stable"],
   },
   {
     name: "Quick Sort",
     path: "/algorithms/sorting/quick",
     description: "Divide-and-conquer sort using partitioning.",
-    tags: ["Avg O(n log n)", "Worst O(n²)", "In-place"],
+    tags: ["Avg O(n log n)", "Worst O(n^2)", "In-place"],
   },
   {
     name: "Tree Sort",
     path: "/algorithms/sorting/tree",
     description: "Insert values into a BST, then traverse in-order to produce a sorted list.",
-    tags: ["BST-based", "Avg O(n log n)", "Worst O(n²)"],
+    tags: ["BST-based", "Avg O(n log n)", "Worst O(n^2)"],
+  },
+  {
+    name: "Bogo Sort",
+    path: "/algorithms/sorting/bogo",
+    description: "Randomly shuffles until sorted. Terrible in practice, useful for teaching randomness.",
+    tags: ["Randomized", "Expected O((n+1)!)", "Educational"],
   },
 ];
 
@@ -60,7 +66,7 @@ function CatalogCard({ algo }: { algo: AlgoItem }) {
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{algo.name}</h2>
         <span className="shrink-0 text-sm text-zinc-400 group-hover:text-zinc-200">
-          Open →
+          Open &rarr;
         </span>
       </div>
 
@@ -83,7 +89,7 @@ function PageHeader() {
         to="/"
         className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900"
       >
-        ← Home
+        &larr; Home
       </Link>
     </div>
   );
