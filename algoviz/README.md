@@ -1,73 +1,112 @@
-# React + TypeScript + Vite
+# AlgoViz
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AlgoViz is a React + TypeScript web app for visualizing algorithms step by step. It lets you generate sample data, play through each algorithm's execution, and inspect pseudocode, state changes, and basic metrics as the algorithm runs.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Step-by-step algorithm playback
+- Pseudocode highlighting for the current step
+- Metrics tracking such as comparisons and swaps
+- Interactive controls for generating data and replaying steps
+- Support for both sorting and graph traversal visualizations
 
-## React Compiler
+## Current Algorithms
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Sorting
 
-## Expanding the ESLint configuration
+- Bubble Sort
+- Insertion Sort
+- Quick Sort
+- Tree Sort
+- Bogo Sort
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Graphs
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Depth-First Search (DFS)
+- Breadth-First Search (BFS)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Zustand
+- Tailwind CSS
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have these installed:
+
+- Node.js
+- npm
+
+## Installation
+
+From the `algoviz` folder, install dependencies:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Running the Project
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Start the development server:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Vite will print a local URL in the terminal, usually:
+
+```text
+http://localhost:5173
+```
+
+## Other Useful Commands
+
+Build the project for production:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+Run ESLint:
+
+```bash
+npm run lint
+```
+
+## Project Structure
+
+```text
+algoviz/
+  src/
+    algorithms/    Algorithm implementations and step generation
+    components/    Shared visualization and UI components
+    pages/         Route-level pages for each algorithm
+    state/         Zustand player state
+```
+
+## How It Works
+
+Each algorithm generates a sequence of steps. The UI plays those steps back and updates the visualization, highlighted pseudocode line, and metrics panel for each frame of execution.
+
+## Future Improvements
+
+- Add more sorting algorithms
+- Add more graph algorithms
+- Add trees, dynamic programming, and greedy algorithms
+- Improve documentation and test coverage
+
+## Author
+
+Built as an algorithm visualization project for classwork and learning.
