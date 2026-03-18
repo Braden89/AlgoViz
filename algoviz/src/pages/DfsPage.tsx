@@ -3,7 +3,8 @@ import { useState } from "react";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { PlayerControls } from "../components/PlayerControls";
-import { MetricsPanel } from "../components/MetricPanel";
+import { SearchMetricsPanel } from "../components/SearchMetricsPanel";
+import { StepInspector } from "../components/StepInspector";
 import { usePlayerStore } from "../state/playerStore";
 
 import { GraphView } from "../components/GraphView";
@@ -157,7 +158,8 @@ export default function DfsPage() {
       left={<PseudocodePanel pseudocode={DFS.pseudocode} activeLine={step?.line ?? 0} />}
       right={
         <div className="space-y-4">
-          <MetricsPanel metrics={step?.metrics} />
+          <SearchMetricsPanel metrics={step?.metrics} step={step?.meta} />
+          <StepInspector items={step?.inspector} />
           <div className="text-xs text-zinc-400">
             {step?.note ?? "Generate a graph, then run DFS from a start node."}
           </div>

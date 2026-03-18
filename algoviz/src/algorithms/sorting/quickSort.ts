@@ -1,4 +1,4 @@
-import type { AlgorithmDefinition, Step } from "../types";
+import type { AlgorithmDefinition, Step, StepInspectorItem } from "../types";
 
 type QuickMeta = {
   pivotIndex: number;
@@ -20,7 +20,8 @@ function pushStep(
   active?: number[],
   note?: string,
   swap?: [number, number],
-  meta?: QuickMeta
+  meta?: QuickMeta,
+  inspector?: StepInspectorItem[]
 ) {
   steps.push({
     array: clone(arr),
@@ -30,6 +31,7 @@ function pushStep(
     note,
     swap,
     meta,
+    inspector,
   });
 }
 
@@ -82,7 +84,16 @@ export const QuickSort: AlgorithmDefinition<QuickMeta> = {
           iIndex,
           jIndex,
         };
-        pushStep(steps, A, line, metrics, active, note, swap, meta);
+        const inspector: StepInspectorItem[] = [
+          { label: "Pivot Index", value: pivotIdx, tone: "danger" },
+          { label: "Pivot Value", value: A[pivotIdx], tone: "danger" },
+          { label: "Lo", value: lo, tone: "accent" },
+          { label: "Hi", value: hi, tone: "accent" },
+          { label: "i", value: iIndex ?? null, tone: "accent" },
+          { label: "j", value: jIndex ?? null, tone: "warning" },
+        ];
+
+        pushStep(steps, A, line, metrics, active, note, swap, meta, inspector);
       };
 
       ps(6, [lo, hi], `partition(lo=${lo}, hi=${hi})`);

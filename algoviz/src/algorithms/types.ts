@@ -5,6 +5,21 @@ export type Metrics = {
 
 export type StepMeta = Record<string, unknown> | undefined;
 
+export type StepInspectorValue = string | number | boolean | null;
+
+export type StepInspectorTone =
+  | "default"
+  | "accent"
+  | "success"
+  | "warning"
+  | "danger";
+
+export type StepInspectorItem = {
+  label: string;
+  value: StepInspectorValue;
+  tone?: StepInspectorTone;
+};
+
 export type Step<M extends StepMeta = undefined> = {
   array: number[];
   line: number;
@@ -15,6 +30,7 @@ export type Step<M extends StepMeta = undefined> = {
 
   // algorithm-specific extras live here
   meta?: M;
+  inspector?: StepInspectorItem[];
 };
 
 export type AlgorithmDefinition<M extends StepMeta = undefined> = {

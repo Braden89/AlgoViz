@@ -1,4 +1,4 @@
-import type { AlgorithmDefinition, Step } from "../types";
+import type { AlgorithmDefinition, Step, StepInspectorItem } from "../types";
 
 type TreeNode = {
   id: string;
@@ -32,6 +32,7 @@ function deepClone<T>(v: T): T {
 
 function layoutTree(rootId: string | undefined, nodes: Record<string, TreeNode>) {
   let x = 0;
+
   function inorder(id: string | undefined, depth: number) {
     if (!id) return;
     const n = nodes[id];
@@ -41,6 +42,7 @@ function layoutTree(rootId: string | undefined, nodes: Record<string, TreeNode>)
     x++;
     inorder(n.right, depth + 1);
   }
+
   inorder(rootId, 0);
 }
 
@@ -52,7 +54,8 @@ function pushStep(
   active?: number[],
   note?: string,
   swap?: [number, number],
-  meta?: TreeSortMeta
+  meta?: TreeSortMeta,
+  inspector?: StepInspectorItem[]
 ) {
   steps.push({
     array: clone(arr),
@@ -62,6 +65,7 @@ function pushStep(
     note,
     swap,
     meta,
+    inspector,
   });
 }
 
@@ -105,7 +109,6 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
     const nodes: Record<string, TreeNode> = {};
     const output: number[] = [];
 
-  
     const snapshot = (phase: TreeSortMeta["phase"], patch?: Partial<TreeSortMeta>): TreeSortMeta => {
       layoutTree(rootId, nodes);
       return {
@@ -127,11 +130,46 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
       return path;
     }
 
-    // start
-    pushStep(steps, A, 0, metrics, undefined, "Start", undefined, snapshot("insert"));
+    const inspectorFor = (
+      phase: TreeSortMeta["phase"],
+      insertingValue?: number,
+      currentNodeId?: string
+    ): StepInspectorItem[] => {
+      const currentNode = currentNodeId ? nodes[currentNodeId] : undefined;
 
-    // INSERT PHASE: build BST
-    pushStep(steps, A, 1, metrics, undefined, "root = null", undefined, snapshot("insert"));
+      return [
+        { label: "Phase", value: phase, tone: phase === "done" ? "success" : "accent" },
+        { label: "Input Value", value: insertingValue ?? null, tone: "warning" },
+        { label: "Current Node", value: currentNode?.value ?? null, tone: "accent" },
+        { label: "Root", value: rootId ? nodes[rootId]?.value ?? null : null, tone: "success" },
+        { label: "Tree Nodes", value: Object.keys(nodes).length },
+        { label: "Output Size", value: output.length, tone: "success" },
+      ];
+    };
+
+    pushStep(
+      steps,
+      A,
+      0,
+      metrics,
+      undefined,
+      "Start",
+      undefined,
+      snapshot("insert"),
+      inspectorFor("insert")
+    );
+
+    pushStep(
+      steps,
+      A,
+      1,
+      metrics,
+      undefined,
+      "root = null",
+      undefined,
+      snapshot("insert"),
+      inspectorFor("insert")
+    );
 
     for (let idx = 0; idx < A.length; idx++) {
       const x = A[idx];
@@ -143,6 +181,7 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         note?: string,
         metaPatch?: Partial<TreeSortMeta>
       ) => {
+        const currentNodeId = metaPatch?.currentNodeId;
         pushStep(
           steps,
           arr,
@@ -151,14 +190,12 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
           activeIdx,
           note,
           undefined,
-          snapshot("insert", { insertingValue: x, ...metaPatch })
+          snapshot("insert", { insertingValue: x, ...metaPatch }),
+          inspectorFor("insert", x, currentNodeId)
         );
       };
 
       ps(A, 2, `for x in A: x = ${x}`);
-
-      // bstInsert
-
       ps(A, 3, `bstInsert(root, ${x})`);
 
       if (!rootId) {
@@ -166,10 +203,10 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         nodes[id] = { id, value: x, parent: undefined };
         rootId = id;
 
-         ps(A, 8, `node == null → new Node(${x}) (root)`, {
-            currentNodeId: id,
-            highlightNodeIds: [id],
-          });
+        ps(A, 8, `node == null -> new Node(${x}) (root)`, {
+          currentNodeId: id,
+          highlightNodeIds: [id],
+        });
         continue;
       }
 
@@ -178,13 +215,11 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
       while (true) {
         const cur = nodes[curId];
 
-        // compare x < cur.value
         metrics.comparisons += 1;
         ps(A, 9, `${x} < ${cur.value}?`, {
           currentNodeId: curId,
           highlightNodeIds: [curId],
         });
-
 
         if (x < cur.value) {
           if (!cur.left) {
@@ -192,43 +227,62 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
             nodes[id] = { id, value: x, parent: curId };
             cur.left = id;
 
-            ps(A, 9, `true → insert ${x} as LEFT child of ${cur.value}`, {
+            ps(A, 9, `true -> insert ${x} as LEFT child of ${cur.value}`, {
               currentNodeId: curId,
               highlightNodeIds: [curId, id],
             });
             break;
-          } else {
-            ps(A, 9, `true → go LEFT`, {
-              currentNodeId: curId,
-              highlightNodeIds: [curId, cur.left],
-            });
-            curId = cur.left;
           }
+
+          ps(A, 9, "true -> go LEFT", {
+            currentNodeId: curId,
+            highlightNodeIds: [curId, cur.left],
+          });
+          curId = cur.left;
         } else {
           if (!cur.right) {
             const id = newId();
             nodes[id] = { id, value: x, parent: curId };
             cur.right = id;
 
-            ps(A, 10, `false → insert ${x} as RIGHT child of ${cur.value}`, {
+            ps(A, 10, `false -> insert ${x} as RIGHT child of ${cur.value}`, {
               currentNodeId: curId,
               highlightNodeIds: [curId, id],
             });
             break;
-          } else {
-            ps(A, 10, `false → go RIGHT`, {
-              currentNodeId: curId,
-              highlightNodeIds: [curId, cur.right],
-            });
-            curId = cur.right;
           }
+
+          ps(A, 10, "false -> go RIGHT", {
+            currentNodeId: curId,
+            highlightNodeIds: [curId, cur.right],
+          });
+          curId = cur.right;
         }
       }
     }
 
-    // TRAVERSE PHASE: inorder to output
-    pushStep(steps, A, 4, metrics, undefined, "output = []", undefined, snapshot("traverse"));
-    pushStep(steps, output, 5, metrics, undefined, "inorder(root, output)", undefined, snapshot("traverse"));
+    pushStep(
+      steps,
+      A,
+      4,
+      metrics,
+      undefined,
+      "output = []",
+      undefined,
+      snapshot("traverse"),
+      inspectorFor("traverse")
+    );
+    pushStep(
+      steps,
+      output,
+      5,
+      metrics,
+      undefined,
+      "inorder(root, output)",
+      undefined,
+      snapshot("traverse"),
+      inspectorFor("traverse", undefined, rootId)
+    );
 
     function inorder(id: string | undefined) {
       if (!id) {
@@ -238,9 +292,10 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
           14,
           metrics,
           undefined,
-          "node == null → return",
+          "node == null -> return",
           undefined,
-          snapshot("traverse")
+          snapshot("traverse"),
+          inspectorFor("traverse")
         );
         return;
       }
@@ -255,7 +310,8 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         undefined,
         `inorder(left of ${n.value})`,
         undefined,
-        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) })
+        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) }),
+        inspectorFor("traverse", undefined, id)
       );
       inorder(n.left);
 
@@ -268,7 +324,8 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         undefined,
         `output.push(${n.value})`,
         undefined,
-        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) })
+        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) }),
+        inspectorFor("traverse", undefined, id)
       );
 
       pushStep(
@@ -279,7 +336,8 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
         undefined,
         `inorder(right of ${n.value})`,
         undefined,
-        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) })
+        snapshot("traverse", { currentNodeId: id, highlightNodeIds: pathTo(id) }),
+        inspectorFor("traverse", undefined, id)
       );
       inorder(n.right);
     }
@@ -292,9 +350,10 @@ export const TreeSort: AlgorithmDefinition<TreeSortMeta> = {
       6,
       metrics,
       undefined,
-      `Done (output is sorted)`,
+      "Done (output is sorted)",
       undefined,
-      snapshot("done")
+      snapshot("done"),
+      inspectorFor("done")
     );
 
     return steps;

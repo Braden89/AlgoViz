@@ -1,4 +1,5 @@
 import type { Step } from "../algorithms/types";
+import { StepInspector } from "./StepInspector";
 
 type QuickMetaMaybe = {
   pivotIndex?: number;
@@ -15,7 +16,7 @@ export function ArrayBars({ step }: { step: Step<any> | undefined }) {
   const swapA = step?.swap?.[0];
   const swapB = step?.swap?.[1];
 
-  // If this is QuickSort, these fields exist in meta. For other algorithms meta is undefined.
+  // Quick Sort uses these fields to color array bars.
   const meta = (step?.meta as QuickMetaMaybe | undefined) ?? undefined;
 
   const pivotIndex = meta?.pivotIndex;
@@ -36,25 +37,21 @@ export function ArrayBars({ step }: { step: Step<any> | undefined }) {
         <div className="text-xs text-zinc-400">{step?.note ?? ""}</div>
       </div>
 
-      <div className="flex h-56 items-end gap-1 rounded-xl border border-zinc-800 bg-zinc-950/40 p-3 overflow-hidden">
+      <div className="flex h-56 items-end gap-1 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950/40 p-3">
         {arr.map((v, idx) => {
           const h = Math.max(2, Math.round((v / max) * 200));
 
           const isActive = step?.active?.includes(idx) ?? false;
-
           const isPivot = pivotIndex === idx;
           const isI = iIndex === idx;
           const isJ = jIndex === idx;
 
           const inRange = hasRange ? idx >= (lo as number) && idx <= (hi as number) : true;
 
-          // swap nudge animation
           let translate = "";
           if (swapA === idx) translate = "translate-x-2";
           if (swapB === idx) translate = "-translate-x-2";
 
-          // color priority:
-          // pivot (red) > i (blue) > j (yellow) > active (green) > default
           let color = "bg-zinc-500";
           if (isActive) color = "bg-emerald-300";
           if (isJ) color = "bg-amber-300";
@@ -73,7 +70,7 @@ export function ArrayBars({ step }: { step: Step<any> | undefined }) {
                 isJ ? "j" : "",
               ]
                 .filter(Boolean)
-                .join(" · ")}
+                .join(" | ")}
               className={[
                 "flex-1 rounded-md transition-all duration-200 ease-in-out",
                 color,
@@ -86,13 +83,7 @@ export function ArrayBars({ step }: { step: Step<any> | undefined }) {
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-3 text-xs text-zinc-400">
-        <span className="text-emerald-300">■ active</span>
-        <span className="text-red-400">■ pivot</span>
-        <span className="text-sky-300">■ i</span>
-        <span className="text-amber-300">■ j</span>
-        {meta ? <span>faded = outside (lo..hi)</span> : null}
-      </div>
+      <StepInspector items={step?.inspector} />
     </div>
   );
 }

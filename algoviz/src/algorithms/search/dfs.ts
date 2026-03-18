@@ -1,4 +1,4 @@
-import type { Step } from "../types";
+import type { Step, StepInspectorItem } from "../types";
 import type { Graph, SearchStep, EdgeId } from "./searchtypes";
 
 function edgeId(from: string, to: string, directed: boolean): EdgeId {
@@ -45,6 +45,8 @@ export const DFS = {
     const visited = new Set<string>();
     const discovered = new Set<string>();
     const exploredEdges = new Set<EdgeId>();
+    const depthOrLevel: Record<string, number> = {};
+    const metrics = { comparisons: 0, swaps: 0 };
 
     const parent: Record<string, string | null> = {};
     for (const id of Object.keys(graph.nodes)) parent[id] = null;
@@ -52,17 +54,30 @@ export const DFS = {
     const stack: string[] = [];
     const steps: Step<SearchStep>[] = [];
 
+    const inspectorFor = (meta: SearchStep): StepInspectorItem[] => [
+      { label: "Frontier", value: meta.frontierType, tone: "accent" },
+      { label: "Phase", value: meta.phase, tone: "accent" },
+      { label: "Current Node", value: meta.currentNodeId ?? null, tone: "warning" },
+      { label: "Neighbor", value: meta.neighborId ?? null, tone: "warning" },
+      { label: "Frontier Size", value: meta.frontierIds.length, tone: "success" },
+      { label: "Visited", value: meta.visitedIds.length, tone: "success" },
+      { label: "Discovered", value: meta.discoveredIds.length, tone: "success" },
+      { label: "Goal", value: meta.goalId ?? null, tone: meta.foundGoal ? "success" : "danger" },
+    ];
+
     const push = (meta: SearchStep) => {
       steps.push({
         array: [],
         line: meta.activeLine ?? 0,
-        metrics: { comparisons: 0, swaps: 0 },
+        metrics: { ...metrics },
         note: meta.message,
         meta,
+        inspector: inspectorFor(meta),
       });
     };
 
     discovered.add(startId);
+    depthOrLevel[startId] = 0;
     stack.push(startId);
 
     push({
@@ -76,6 +91,7 @@ export const DFS = {
       visitedIds: [...visited],
       frontierIds: [...stack],
       parent: { ...parent },
+      depthOrLevel: { ...depthOrLevel },
       exploredEdgeIds: [],
       activeLine: 1,
     });
@@ -94,6 +110,7 @@ export const DFS = {
         visitedIds: [...visited],
         frontierIds: [...stack],
         parent: { ...parent },
+        depthOrLevel: { ...depthOrLevel },
         exploredEdgeIds: [...exploredEdges],
         activeLine: 5,
       });
@@ -113,6 +130,7 @@ export const DFS = {
         visitedIds: [...visited],
         frontierIds: [...stack],
         parent: { ...parent },
+        depthOrLevel: { ...depthOrLevel },
         exploredEdgeIds: [...exploredEdges],
         foundGoal: goalId ? node === goalId : false,
         activeLine: 7,
@@ -138,6 +156,7 @@ export const DFS = {
           visitedIds: [...visited],
           frontierIds: [...stack],
           parent: { ...parent },
+          depthOrLevel: { ...depthOrLevel },
           exploredEdgeIds: [...exploredEdges],
           foundGoal: true,
           pathToGoal: path,
@@ -151,6 +170,7 @@ export const DFS = {
       for (const nb of [...neighbors].reverse()) {
         const e = edgeId(node, nb, graph.directed);
         exploredEdges.add(e);
+        metrics.comparisons += 1;
 
         push({
           algorithm: "dfs",
@@ -165,6 +185,7 @@ export const DFS = {
           visitedIds: [...visited],
           frontierIds: [...stack],
           parent: { ...parent },
+          depthOrLevel: { ...depthOrLevel },
           exploredEdgeIds: [...exploredEdges],
           activeLine: 8,
         });
@@ -172,6 +193,7 @@ export const DFS = {
         if (!discovered.has(nb) && !visited.has(nb)) {
           parent[nb] = node;
           discovered.add(nb);
+          depthOrLevel[nb] = (depthOrLevel[node] ?? 0) + 1;
           stack.push(nb);
 
           push({
@@ -185,6 +207,7 @@ export const DFS = {
             visitedIds: [...visited],
             frontierIds: [...stack],
             parent: { ...parent },
+            depthOrLevel: { ...depthOrLevel },
             exploredEdgeIds: [...exploredEdges],
             activeLine: 10,
           });
@@ -202,6 +225,7 @@ export const DFS = {
       visitedIds: [...visited],
       frontierIds: [],
       parent: { ...parent },
+      depthOrLevel: { ...depthOrLevel },
       exploredEdgeIds: [...exploredEdges],
       foundGoal: false,
       activeLine: 0,
