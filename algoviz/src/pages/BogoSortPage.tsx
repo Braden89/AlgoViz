@@ -27,6 +27,7 @@ export default function BogoSortPage() {
 
   const canGenerate = Number.isFinite(size) && size >= 3 && size <= 9;
   const currentArray = useMemo(() => seedArray, [seedArray]);
+  const loadSteps = () => setSteps(BogoSort.generateSteps(seedArray));
 
   return (
     <AlgorithmLayout
@@ -70,22 +71,17 @@ export default function BogoSortPage() {
 
             <button
               className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-              onClick={() => setSeedArray(makeRandomArray(size))}
+              onClick={() => {
+                setSeedArray(makeRandomArray(size));
+                setSteps([]);
+              }}
               disabled={!canGenerate}
             >
               New Random Array
             </button>
-
-            <button
-              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-              onClick={() => setSteps(BogoSort.generateSteps(seedArray))}
-              disabled={!canGenerate}
-            >
-              Generate Steps
-            </button>
           </div>
 
-          <PlayerControls />
+          <PlayerControls onPlay={loadSteps} />
         </div>
       }
     />

@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+@keyframes array-bar-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-2deg);
+  }
+  40% {
+    transform: rotate(2deg);
+  }
+  60% {
+    transform: rotate(-1.5deg);
+  }
+  80% {
+    transform: rotate(1.5deg);
+  }
+}
+
+.array-bar-wiggle {
+  transform-origin: bottom center;
+  animation: array-bar-wiggle 220ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .array-bar-wiggle {
+    animation: none;
+  }
+}

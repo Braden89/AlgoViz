@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { usePlayerStore } from "../state/playerStore";
 
-export function PlayerControls() {
+export function PlayerControls({ onPlay }: { onPlay?: () => void }) {
   const steps = usePlayerStore((s) => s.steps);
   const index = usePlayerStore((s) => s.index);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
@@ -30,13 +30,22 @@ export function PlayerControls() {
 
   const atStart = index <= 0;
   const atEnd = steps.length ? index >= steps.length - 1 : true;
+  const canPlay = steps.length > 0 || Boolean(onPlay);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button
         className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-        onClick={() => setPlaying(!isPlaying)}
-        disabled={steps.length === 0}
+        onClick={() => {
+          if (isPlaying) {
+            setPlaying(false);
+            return;
+          }
+
+          if (steps.length === 0) onPlay?.();
+          setPlaying(true);
+        }}
+        disabled={!canPlay}
       >
         {isPlaying ? "Pause" : "Play"}
       </button>

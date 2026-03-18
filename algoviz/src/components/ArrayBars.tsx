@@ -1,4 +1,5 @@
 import type { Step } from "../algorithms/types";
+import { usePlayerStore } from "../state/playerStore";
 import { StepInspector } from "./StepInspector";
 
 type QuickMetaMaybe = {
@@ -10,11 +11,12 @@ type QuickMetaMaybe = {
 };
 
 export function ArrayBars({ step }: { step: Step<any> | undefined }) {
+  const steps = usePlayerStore((s) => s.steps);
+  const index = usePlayerStore((s) => s.index);
+
   const arr = step?.array ?? [];
   const max = arr.length ? Math.max(...arr) : 1;
-
-  const swapA = step?.swap?.[0];
-  const swapB = step?.swap?.[1];
+  const previousArray = steps[index - 1]?.array;
 
   // Quick Sort uses these fields to color array bars.
   const meta = (step?.meta as QuickMetaMaybe | undefined) ?? undefined;
@@ -45,12 +47,9 @@ export function ArrayBars({ step }: { step: Step<any> | undefined }) {
           const isPivot = pivotIndex === idx;
           const isI = iIndex === idx;
           const isJ = jIndex === idx;
+          const didChange = previousArray !== undefined && previousArray[idx] !== v;
 
           const inRange = hasRange ? idx >= (lo as number) && idx <= (hi as number) : true;
-
-          let translate = "";
-          if (swapA === idx) translate = "translate-x-2";
-          if (swapB === idx) translate = "-translate-x-2";
 
           let color = "bg-zinc-500";
           if (isActive) color = "bg-emerald-300";
@@ -73,8 +72,8 @@ export function ArrayBars({ step }: { step: Step<any> | undefined }) {
                 .join(" | ")}
               className={[
                 "flex-1 rounded-md transition-all duration-200 ease-in-out",
+                didChange ? "array-bar-wiggle" : "",
                 color,
-                translate,
                 fade,
               ].join(" ")}
               style={{ height: `${h}px` }}

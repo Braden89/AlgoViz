@@ -36,6 +36,7 @@ export default function DfsPage() {
 
   const startValid = start in graph.nodes;
   const goalValid = goal === "" || goal in graph.nodes;
+  const loadSteps = () => setSteps(DFS.generateSteps(graph, start, goal || undefined));
 
   function regenerateGraph() {
     const count =
@@ -127,7 +128,10 @@ export default function DfsPage() {
                   startValid ? "border-zinc-800" : "border-red-700",
                 ].join(" ")}
                 value={start}
-                onChange={(e) => setStart(e.target.value.trim())}
+                onChange={(e) => {
+                  setStart(e.target.value.trim());
+                  setSteps([]);
+                }}
                 placeholder="N0"
               />
 
@@ -138,20 +142,15 @@ export default function DfsPage() {
                   goalValid ? "border-zinc-800" : "border-red-700",
                 ].join(" ")}
                 value={goal}
-                onChange={(e) => setGoal(e.target.value.trim())}
+                onChange={(e) => {
+                  setGoal(e.target.value.trim());
+                  setSteps([]);
+                }}
                 placeholder="(none)"
               />
-
-              <button
-                className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-                onClick={() => setSteps(DFS.generateSteps(graph, start, goal || undefined))}
-                disabled={!startValid || !goalValid}
-              >
-                Generate Steps
-              </button>
             </div>
 
-            <PlayerControls />
+            <PlayerControls onPlay={startValid && goalValid ? loadSteps : undefined} />
           </div>
         </div>
       }

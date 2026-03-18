@@ -28,6 +28,7 @@ export default function TreeSortPage() {
 
   const canGenerate = Number.isFinite(size) && size >= 5 && size <= 60;
   const currentArray = useMemo(() => seedArray, [seedArray]);
+  const loadSteps = () => setSteps(TreeSort.generateSteps(seedArray));
 
   return (
     <AlgorithmLayout
@@ -60,22 +61,17 @@ export default function TreeSortPage() {
 
               <button
                 className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-                onClick={() => setSeedArray(makeRandomArray(size))}
+                onClick={() => {
+                  setSeedArray(makeRandomArray(size));
+                  setSteps([]);
+                }}
                 disabled={!canGenerate}
               >
                 New Random Array
               </button>
-
-              <button
-                className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-                onClick={() => setSteps(TreeSort.generateSteps(seedArray))}
-                disabled={!canGenerate}
-              >
-                Generate Steps
-              </button>
             </div>
 
-            <PlayerControls />
+            <PlayerControls onPlay={loadSteps} />
           </div>
         </div>
       }

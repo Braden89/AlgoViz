@@ -27,6 +27,7 @@ export default function QuickSortPage() {
 
   const canGenerate = Number.isFinite(size) && size >= 5 && size <= 80;
   const currentArray = useMemo(() => seedArray, [seedArray]);
+  const loadSteps = () => setSteps(QuickSort.generateSteps(seedArray));
 
   return (
     <AlgorithmLayout
@@ -67,22 +68,17 @@ export default function QuickSortPage() {
 
             <button
               className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-              onClick={() => setSeedArray(makeRandomArray(size))}
+              onClick={() => {
+                setSeedArray(makeRandomArray(size));
+                setSteps([]);
+              }}
               disabled={!canGenerate}
             >
               New Random Array
             </button>
-
-            <button
-              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50"
-              onClick={() => setSteps(QuickSort.generateSteps(seedArray))}
-              disabled={!canGenerate}
-            >
-              Generate Steps
-            </button>
           </div>
 
-          <PlayerControls />
+          <PlayerControls onPlay={loadSteps} />
         </div>
       }
     />

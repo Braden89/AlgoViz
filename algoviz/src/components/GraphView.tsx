@@ -6,12 +6,9 @@ function edgeId(from: string, to: string, directed: boolean): EdgeId {
   return from < to ? `${from}--${to}` : `${to}--${from}`;
 }
 
-
-
 export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
   const { graph, step } = props;
 
-  // View-only zoom + pan (does not modify points)
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
 
@@ -25,11 +22,9 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
   const nodes = graph.nodes;
   const edges = graph.edges;
 
-    const graphKey = useMemo(() => {
-    // changes whenever nodes/edges change
+  const graphKey = useMemo(() => {
     const nodeCount = Object.keys(nodes).length;
     const edgeCount = edges.length;
-    // include bounds-ish signal too
     const sample = Object.values(nodes)
       .slice(0, 3)
       .map((n) => `${n.id}:${n.x},${n.y}`)
@@ -38,21 +33,18 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
   }, [nodes, edges]);
 
   useEffect(() => {
-    // When the graph changes, reset view so it starts centered
     setZoom(1);
     setPan({ x: 0, y: 0 });
   }, [graphKey]);
 
   const visited = new Set(step?.visitedIds ?? []);
-  const discovered = new Set((step as any)?.discoveredIds ?? []); // optional field
+  const discovered = new Set(step?.discoveredIds ?? []);
   const frontier = new Set(step?.frontierIds ?? []);
   const path = new Set(step?.pathToGoal ?? []);
   const exploredEdges = new Set(step?.exploredEdgeIds ?? []);
   const activeEdge = step?.activeEdgeId;
 
-    // --- Path (green) ---
   const pathNodes = step?.pathToGoal ?? [];
-  const pathNodeSet = new Set(pathNodes);
 
   const pathEdgeSet = useMemo(() => {
     const s = new Set<EdgeId>();
@@ -60,9 +52,8 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
       s.add(edgeId(pathNodes[i], pathNodes[i + 1], graph.directed));
     }
     return s;
-  }, [pathNodes.join("|"), graph.directed]);
+  }, [pathNodes, graph.directed]);
 
-  // --- Tree edges from parent map (helps distinguish traversal tree) ---
   const treeEdgeSet = useMemo(() => {
     const s = new Set<EdgeId>();
     const p = step?.parent ?? {};
@@ -74,18 +65,16 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
     return s;
   }, [step?.parent, graph.directed]);
 
-
   const current = step?.currentNodeId;
   const neighbor = step?.neighborId;
   const goal = step?.goalId;
 
-  // Compute bounds of content
   const bounds = useMemo(() => {
     const all = Object.values(nodes);
-    let minX = Infinity,
-      maxX = -Infinity,
-      minY = Infinity,
-      maxY = -Infinity;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
 
     for (const n of all) {
       const x = n.x ?? 0;
@@ -99,53 +88,48 @@ export function GraphView(props: { graph?: Graph; step?: SearchStep }) {
 
     if (!Number.isFinite(minX)) return { minX: 0, maxX: 1, minY: 0, maxY: 1 };
     return { minX, maxX, minY, maxY };
-  }, [graphKey]);
+  }, [nodes]);
 
-
-  // Padding + SVG size
-  // Max visual extent of a node (radius + stroke). These are in SVG units.
   const maxNodeR = 26;
   const maxStroke = 4;
   const extraPad = 16;
-
-// Total padding needed on each side
-const pad = maxNodeR + maxStroke + extraPad;
-
+  const pad = maxNodeR + maxStroke + extraPad;
+  const viewportPad = pad * 2;
+  const panSlackX = pad * 4;
+  const panSlackY = pad;
+  const initialOffsetX = pad;
+  const initialOffsetY = pad * 2;
 
   const width = Math.max(1, bounds.maxX - bounds.minX) + pad * 2;
   const height = Math.max(1, bounds.maxY - bounds.minY) + pad * 2;
 
-  // Center point for scaling
-  const cx = width / 2;
-  const cy = height / 2;
+  const scaledWidth = width * zoom;
+  const scaledHeight = height * zoom;
+
+  const canvasWidth = Math.ceil(Math.max(width, scaledWidth) + viewportPad * 2 + panSlackX * 2);
+  const canvasHeight = Math.ceil(Math.max(height, scaledHeight) + viewportPad * 2 + panSlackY * 2);
 
   const clampZoom = (z: number) => Math.max(0.25, Math.min(2, z));
 
   const onWheel: React.WheelEventHandler<SVGSVGElement> = (e) => {
     e.preventDefault();
+    e.stopPropagation();
 
-    // Wheel up => zoom in; wheel down => zoom out
     const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
     const nextZoom = clampZoom(zoom * factor);
 
-    // Zoom around mouse position by adjusting pan
     const rect = e.currentTarget.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
 
-    // Find world point under mouse before zoom:
-    const wx = (mx - cx - pan.x) / zoom + cx;
-    const wy = (my - cy - pan.y) / zoom + cy;
+    const wx = (mx - viewportPad - initialOffsetX - pan.x) / zoom;
+    const wy = (my - viewportPad - initialOffsetY + pan.y) / zoom;
 
-    // Compute pan so that world point stays under mouse after zoom:
-    const nextPanX = mx - cx - (wx - cx) * nextZoom;
-    const nextPanY = my - cy - (wy - cy) * nextZoom;
+    const nextPanX = mx - viewportPad - initialOffsetX - wx * nextZoom;
+    const nextPanY = my - viewportPad - initialOffsetY - wy * nextZoom;
 
     setZoom(nextZoom);
-    useEffect(() => {
-    setZoom(1);
     setPan({ x: nextPanX, y: nextPanY });
-  }, [graph]);
   };
 
   const onMouseDown: React.MouseEventHandler<SVGSVGElement> = (e) => {
@@ -173,7 +157,6 @@ const pad = maxNodeR + maxStroke + extraPad;
 
   return (
     <div className="space-y-2">
-      {/* Zoom controls */}
       <div className="flex items-center gap-3">
         <span className="text-xs text-zinc-400">Zoom</span>
         <input
@@ -194,11 +177,14 @@ const pad = maxNodeR + maxStroke + extraPad;
         </button>
       </div>
 
-      <div className="overflow-auto">
+      <div
+        className="h-[420px] overflow-auto overscroll-contain rounded-xl"
+        style={{ overscrollBehavior: "contain" }}
+      >
         <svg
           key={graphKey}
-          width={width}
-          height={height}
+          width={canvasWidth}
+          height={canvasHeight}
           onWheel={onWheel}
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
@@ -207,14 +193,13 @@ const pad = maxNodeR + maxStroke + extraPad;
           style={{
             cursor: isPanningRef.current ? "grabbing" : "grab",
             display: "block",
-            width: `${width}px`,
-            height: `${height}px`,
-            minWidth: `${width}px`,
-            minHeight: `${height}px`,
+            width: `${canvasWidth}px`,
+            height: `${canvasHeight}px`,
+            minWidth: `${canvasWidth}px`,
+            minHeight: `${canvasHeight}px`,
           }}
-    >
-    <g transform={`translate(${cx}, ${cy}) translate(${pan.x}, ${pan.y}) scale(${zoom}) translate(${-cx}, ${-cy})`}>
-            {/* edges */}
+        >
+          <g transform={`translate(${viewportPad + initialOffsetX + pan.x}, ${viewportPad + initialOffsetY + pan.y}) scale(${zoom})`}>
             {edges.map((e, i) => {
               const a = nodes[e.from];
               const b = nodes[e.to];
@@ -226,42 +211,35 @@ const pad = maxNodeR + maxStroke + extraPad;
               const by = (b.y ?? 0) - bounds.minY + pad;
 
               const id = edgeId(e.from, e.to, graph.directed);
-
               const isActive = activeEdge === id;
               const isExplored = exploredEdges.has(id);
               const isTreeEdge = treeEdgeSet.has(id);
               const isPathEdge = pathEdgeSet.has(id);
 
               const prunedEdges = new Set(step?.prunedEdgeIds ?? []);
-              const pathEdges = new Set(step?.pathEdgeIds ?? []);
+              const isPruned =
+                prunedEdges.has(id) ||
+                Boolean(step?.foundGoal && isTreeEdge && !isPathEdge);
 
-              const isPruned = prunedEdges.has(id) ;
-              
+              const stroke = isPathEdge
+                ? "rgb(34 197 94)"
+                : isPruned
+                  ? "rgb(239 68 68)"
+                  : "currentColor";
 
+              const opacity = isActive
+                ? 1
+                : isPathEdge
+                  ? 0.95
+                  : isPruned
+                    ? 0.75
+                    : isTreeEdge
+                      ? 0.55
+                      : isExplored
+                        ? 0.3
+                        : 0.14;
 
-
-              const stroke =
-                isPathEdge ? "rgb(34 197 94)" :
-                isPruned ? "rgb(239 68 68)" :
-                "currentColor";
-
-              const opacity =
-                isActive ? 1 :
-                isPathEdge ? 0.95 :
-                isPruned ? 0.75 :
-                isTreeEdge ? 0.55 :
-                isExplored ? 0.30 :
-                0.14;
-
-              const strokeWidth =
-                isActive ? 4 :
-                isPathEdge ? 4 :
-                isPruned ? 3 :
-                isTreeEdge ? 2.5 :
-                2;
-
-
-              
+              const strokeWidth = isActive ? 4 : isPathEdge ? 4 : isPruned ? 3 : isTreeEdge ? 2.5 : 2;
 
               return (
                 <line
@@ -277,7 +255,6 @@ const pad = maxNodeR + maxStroke + extraPad;
               );
             })}
 
-            {/* nodes */}
             {Object.values(nodes).map((n) => {
               const x = (n.x ?? 0) - bounds.minX + pad;
               const y = (n.y ?? 0) - bounds.minY + pad;
@@ -294,23 +271,14 @@ const pad = maxNodeR + maxStroke + extraPad;
               const strong = isCurrent || isGoal || isPath || isFrontier || isNeighbor;
               const opacity = strong ? 1 : isVisited ? 0.35 : isDiscovered ? 0.55 : 0.22;
 
-              const r =
-                isCurrent ? 26 :
-                isGoal ? 24 :
-                isNeighbor ? 24 :
-                isFrontier ? 23 :
-                21;
+              const r = isCurrent ? 26 : isGoal ? 24 : isNeighbor ? 24 : isFrontier ? 23 : 21;
+              const strokeWidth = isCurrent ? 4 : isGoal ? 4 : isFrontier ? 3 : 2;
 
-              const strokeWidth =
-                isCurrent ? 4 :
-                isGoal ? 4 :
-                isFrontier ? 3 :
-                2;
-
-              const stroke =
-                isPath ? "rgb(34 197 94)" :
-                isPrunedNode ? "rgb(239 68 68)" :
-                "currentColor";
+              const stroke = isPath
+                ? "rgb(34 197 94)"
+                : isPrunedNode
+                  ? "rgb(239 68 68)"
+                  : "currentColor";
 
               return (
                 <g key={n.id}>
