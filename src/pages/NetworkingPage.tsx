@@ -13,6 +13,12 @@ const networkingAlgorithms = [
     to: "/algorithms/networking/rdt-3-0",
     status: "ready" as const,
   },
+  {
+    name: "Chord",
+    description: "Distributed hash table routing on a ring using successors and finger tables.",
+    to: "/algorithms/networking/chord",
+    status: "ready" as const,
+  },
 ];
 
 export default function NetworkingPage() {
