@@ -24,8 +24,32 @@
   animation: array-bar-wiggle 220ms ease-in-out;
 }
 
+@keyframes paxos-packet-travel {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.88);
+    opacity: 0.25;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--packet-dx), var(--packet-dy)) scale(1);
+    opacity: 0.95;
+  }
+}
+
+.paxos-packet {
+  width: 16px;
+  height: 16px;
+  animation: paxos-packet-travel 380ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .array-bar-wiggle {
+    animation: none;
+  }
+
+  .paxos-packet {
     animation: none;
   }
 }

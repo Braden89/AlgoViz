@@ -11,25 +11,30 @@ export default function Home() {
           <div className="text-sm text-zinc-300">Browse</div>
 
           <div className="mt-3 flex flex-wrap gap-2">
-          <Link
-          className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-4 py-2 text-sm hover:bg-zinc-900"
-          to="/algorithms/sorting"
-    >
-          Sorting →
-          </Link>
-          <Link
-          className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-4 py-2 text-sm hover:bg-zinc-900"
-          to="/graphs"
-    >
-          Graphs →
-          </Link>
+            <Link
+              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-4 py-2 text-sm hover:bg-zinc-900"
+              to="/algorithms/sorting"
+            >
+              Sorting &rarr;
+            </Link>
+            <Link
+              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-4 py-2 text-sm hover:bg-zinc-900"
+              to="/graphs"
+            >
+              Graphs &rarr;
+            </Link>
+            <Link
+              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-4 py-2 text-sm hover:bg-zinc-900"
+              to="/algorithms/networking"
+            >
+              Networking &rarr;
+            </Link>
+          </div>
+
+          <div className="mt-3 text-xs text-zinc-400">
+            More algorithms coming soon! (e.g. graph search, dynamic programming, greedy algorithms...)
+          </div>
         </div>
-
-        <div className="mt-3 text-xs text-zinc-400">
-          More algorithms coming soon! (e.g. graph search, dynamic programming, greedy algorithms...)
-  </div>
-</div>
-
       </div>
     </div>
   );

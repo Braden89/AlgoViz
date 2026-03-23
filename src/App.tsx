@@ -11,6 +11,8 @@ import BogoSortPage from "./pages/BogoSortPage";
 import GraphsPage from "./pages/GraphsPage";
 import DfsPage from "./pages/DfsPage";
 import BfsPage from "./pages/BfsPage";
+import NetworkingPage from "./pages/NetworkingPage";
+import PaxosPage from "./pages/PaxosPage";
 
 
 export default function App() {
@@ -29,6 +31,8 @@ export default function App() {
       <Route path="/graphs" element={<GraphsPage />} />
       <Route path="/graphs/dfs" element={<DfsPage />} />
       <Route path="/graphs/bfs" element={<BfsPage />} />
+      <Route path="/algorithms/networking" element={<NetworkingPage />} />
+      <Route path="/algorithms/networking/paxos" element={<PaxosPage />} />
 
       {/* Optional: redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" replace />} />

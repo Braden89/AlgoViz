@@ -36,7 +36,7 @@ export type Step<M extends StepMeta = undefined> = {
 export type AlgorithmDefinition<M extends StepMeta = undefined> = {
   id: string;
   name: string;
-  category: "sorting" | "graphs" | "trees" | "dp";
+  category: "sorting" | "graphs" | "trees" | "dp" | "networking";
   pseudocode: string[];
   generateSteps: (input: number[]) => Step<M>[];
 };
