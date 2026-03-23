@@ -308,57 +308,35 @@ function scenarioNodes(config: PaxosConfig, acceptors: PaxosNodeState[]): PaxosN
     proposedValue: requestedValue,
   };
 
-  return [
-    {
-      id: "C1",
-      label: "Client",
-      role: "client",
-      status: "Request ready",
-      details: buildNodeDetails(
-        {
-          id: "C1",
-          label: "Client",
-          role: "client",
-          status: "Request ready",
-        },
-        detailContext,
-      ),
-    },
-    {
-      id: config.proposerId,
-      label: config.proposerId,
-      role: "proposer",
-      status: "Idle",
-      details: buildNodeDetails(
-        {
-          id: config.proposerId,
-          label: config.proposerId,
-          role: "proposer",
-          status: "Idle",
-        },
-        detailContext,
-      ),
-    },
-    ...acceptors.map((acceptor) => ({
-      ...acceptor,
-      details: buildNodeDetails(acceptor, detailContext),
-    })),
-    {
-      id: config.learnerId,
-      label: config.learnerId,
-      role: "learner",
-      status: "Waiting",
-      details: buildNodeDetails(
-        {
-          id: config.learnerId,
-          label: config.learnerId,
-          role: "learner",
-          status: "Waiting",
-        },
-        detailContext,
-      ),
-    },
-  ];
+  const clientNode: PaxosNodeState = {
+    id: "C1",
+    label: "Client",
+    role: "client",
+    status: "Request ready",
+  };
+  clientNode.details = buildNodeDetails(clientNode, detailContext);
+
+  const proposerNode: PaxosNodeState = {
+    id: config.proposerId,
+    label: config.proposerId,
+    role: "proposer",
+    status: "Idle",
+  };
+  proposerNode.details = buildNodeDetails(proposerNode, detailContext);
+
+  acceptors.forEach((acceptor) => {
+    acceptor.details = buildNodeDetails(acceptor, detailContext);
+  });
+
+  const learnerNode: PaxosNodeState = {
+    id: config.learnerId,
+    label: config.learnerId,
+    role: "learner",
+    status: "Waiting",
+  };
+  learnerNode.details = buildNodeDetails(learnerNode, detailContext);
+
+  return [clientNode, proposerNode, ...acceptors, learnerNode];
 }
 
 // Builds a static "before playback" snapshot so the diagram can show
@@ -654,6 +632,8 @@ export const Paxos = {
           },
           [sanitizedConfig.proposerId, acceptor.id],
         );
+        acceptor.inboxProposalNumber = undefined;
+        acceptor.inboxValue = undefined;
         return;
       }
 
@@ -684,6 +664,8 @@ export const Paxos = {
         },
         [sanitizedConfig.proposerId, acceptor.id],
       );
+      acceptor.inboxProposalNumber = undefined;
+      acceptor.inboxValue = undefined;
     });
 
     // If too few promises arrive, the round ends without risking safety.
@@ -792,6 +774,8 @@ export const Paxos = {
           },
           [sanitizedConfig.proposerId, acceptor.id],
         );
+        acceptor.inboxProposalNumber = undefined;
+        acceptor.inboxValue = undefined;
         return;
       }
 
@@ -820,6 +804,8 @@ export const Paxos = {
         },
         [sanitizedConfig.proposerId, acceptor.id],
       );
+      acceptor.inboxProposalNumber = undefined;
+      acceptor.inboxValue = undefined;
     });
 
     // Without a quorum of accepted responses, nothing is chosen yet.
