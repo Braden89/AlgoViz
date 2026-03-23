@@ -13,6 +13,7 @@ import DfsPage from "./pages/DfsPage";
 import BfsPage from "./pages/BfsPage";
 import NetworkingPage from "./pages/NetworkingPage";
 import PaxosPage from "./pages/PaxosPage";
+import Rdt30Page from "./pages/Rdt30Page";
 
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
       <Route path="/graphs/bfs" element={<BfsPage />} />
       <Route path="/algorithms/networking" element={<NetworkingPage />} />
       <Route path="/algorithms/networking/paxos" element={<PaxosPage />} />
+      <Route path="/algorithms/networking/rdt-3-0" element={<Rdt30Page />} />
 
       {/* Optional: redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" replace />} />

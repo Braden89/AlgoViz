@@ -7,6 +7,12 @@ const networkingAlgorithms = [
     to: "/algorithms/networking/paxos",
     status: "ready" as const,
   },
+  {
+    name: "RDT 3.0",
+    description: "Reliable data transfer over an unreliable channel using sequence numbers, ACKs, and timeouts.",
+    to: "/algorithms/networking/rdt-3-0",
+    status: "ready" as const,
+  },
 ];
 
 export default function NetworkingPage() {
