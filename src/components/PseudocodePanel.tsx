@@ -9,12 +9,12 @@ export function PseudocodePanel(props: { pseudocode: string[]; activeLine: numbe
             <div
               key={i}
               className={[
-                "flex gap-3 rounded-md px-2 py-1",
+                "flex items-start gap-3 rounded-md px-2 py-1",
                 isActive ? "bg-zinc-800 text-zinc-100" : "text-zinc-300",
               ].join(" ")}
             >
-              <span className="w-6 text-right text-zinc-500">{i + 1}</span>
-              <span className="whitespace-pre">{line}</span>
+              <span className="w-6 shrink-0 text-right text-zinc-500">{i + 1}</span>
+              <span className="min-w-0 whitespace-pre-wrap break-words">{line}</span>
             </div>
           );
         })}
