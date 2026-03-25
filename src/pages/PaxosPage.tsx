@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { NetworkingMetricsPanel } from "../components/NetworkingMetricsPanel";
 import { PaxosView } from "../components/PaxosView";
 import { PlayerControls } from "../components/PlayerControls";
@@ -64,23 +64,25 @@ export default function PaxosPage() {
   return (
     <AlgorithmLayout
       title="Paxos Consensus"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Networking", to: "/algorithms/networking" },
+              { label: "Paxos" },
+            ]}
+          />
+        </div>
+      }
       left={<PseudocodePanel pseudocode={Paxos.pseudocode} activeLine={step?.line ?? 0} />}
       right={
         <div className="space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-sm text-zinc-300">Overview</div>
-              <div className="mt-2 text-sm text-zinc-400">
-                Paxos reaches consensus by requiring a quorum of acceptors to promise and then accept the same proposal.
-              </div>
+          <div>
+            <div className="text-sm text-zinc-300">Overview</div>
+            <div className="mt-2 text-sm text-zinc-400">
+              Paxos reaches consensus by requiring a quorum of acceptors to promise and then accept the same proposal.
             </div>
-
-            <Link
-              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900"
-              to="/algorithms/networking"
-            >
-              &larr; Networking
-            </Link>
           </div>
 
           <NetworkingMetricsPanel meta={visibleMeta} />

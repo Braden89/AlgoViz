@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 
 const networkingAlgorithms = [
   {
@@ -31,12 +32,14 @@ export default function NetworkingPage() {
             <p className="mt-2 text-zinc-300">Protocols, distributed systems, and consensus visualizations.</p>
           </div>
 
-          <Link
-            className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-4 py-2 text-sm hover:bg-zinc-900"
-            to="/"
-          >
-            &larr; Home
-          </Link>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+            <Breadcrumbs
+              items={[
+                { label: "Home", to: "/" },
+                { label: "Networking" },
+              ]}
+            />
+          </div>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">

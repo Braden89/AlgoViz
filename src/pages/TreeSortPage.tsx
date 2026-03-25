@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { TreeSort } from "../algorithms/trees/treeSort";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { ArrayBars } from "../components/ArrayBars";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { PlayerControls } from "../components/PlayerControls";
 import { usePlayerStore } from "../state/playerStore";
@@ -33,6 +34,17 @@ export default function TreeSortPage() {
   return (
     <AlgorithmLayout
       title="Tree Sort (BST)"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Sorting", to: "/algorithms/sorting" },
+              { label: "Tree Sort" },
+            ]}
+          />
+        </div>
+      }
       /* TOP: Full-width tree */
       bottom={
         <div className="space-y-4">

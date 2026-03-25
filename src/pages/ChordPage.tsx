@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PlayerControls } from "../components/PlayerControls";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { StepInspector } from "../components/StepInspector";
@@ -62,23 +62,25 @@ export default function ChordPage() {
   return (
     <AlgorithmLayout
       title="Chord Distributed Hash Table"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Networking", to: "/algorithms/networking" },
+              { label: "Chord" },
+            ]}
+          />
+        </div>
+      }
       left={<PseudocodePanel pseudocode={Chord.pseudocode} activeLine={step?.line ?? 0} />}
       right={
         <div className="space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-sm text-zinc-300">Overview</div>
-              <div className="mt-2 text-sm text-zinc-400">
-                Chord places nodes and keys on a circular identifier space, then uses finger tables to route lookups in logarithmic hops.
-              </div>
+          <div>
+            <div className="text-sm text-zinc-300">Overview</div>
+            <div className="mt-2 text-sm text-zinc-400">
+              Chord places nodes and keys on a circular identifier space, then uses finger tables to route lookups in logarithmic hops.
             </div>
-
-            <Link
-              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900"
-              to="/algorithms/networking"
-            >
-              &larr; Networking
-            </Link>
           </div>
 
           <ChordMetricsPanel meta={visibleMeta} />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { PlayerControls } from "../components/PlayerControls";
 import { SearchMetricsPanel } from "../components/SearchMetricsPanel";
@@ -55,6 +56,17 @@ export default function BfsPage() {
   return (
     <AlgorithmLayout
       title="Breadth-First Search (BFS)"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Graphs", to: "/graphs" },
+              { label: "BFS" },
+            ]}
+          />
+        </div>
+      }
       bottom={
         <div className="space-y-4">
           <div className="text-sm text-zinc-300">Graph</div>

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { InsertionSort } from "../algorithms/sorting/InsertionSort";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { ArrayBars } from "../components/ArrayBars";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { PlayerControls } from "../components/PlayerControls";
 import { usePlayerStore } from "../state/playerStore";
@@ -33,6 +34,17 @@ export default function InsertionSortPage() {
   return (
     <AlgorithmLayout
       title="Insertion Sort"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Sorting", to: "/algorithms/sorting" },
+              { label: "Insertion Sort" },
+            ]}
+          />
+        </div>
+      }
       left={<ArrayBars step={step ?? { array: currentArray, line: 0, metrics: { comparisons: 0, swaps: 0 } }} />}
       right={
         <div className="space-y-4">

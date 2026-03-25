@@ -1,4 +1,5 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 
 type AlgoItem = {
   name: string;
@@ -7,8 +8,6 @@ type AlgoItem = {
   tags: string[];
 };
 
-// Keep all catalog data in one place.
-// Easy to extend later (Trees, Graphs, DP, etc.)
 const SORTING_ALGORITHMS: AlgoItem[] = [
   {
     name: "Bubble Sort",
@@ -81,16 +80,24 @@ function PageHeader() {
   return (
     <div className="flex items-center justify-between gap-4">
       <div>
+        <Breadcrumbs
+          items={[
+            { label: "Home", to: "/" },
+            { label: "Sorting" },
+          ]}
+        />
         <h1 className="text-3xl font-semibold">Sorting Algorithms</h1>
         <p className="mt-2 text-zinc-300">Choose an algorithm to visualize step by step.</p>
       </div>
 
-      <Link
-        to="/"
-        className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900"
-      >
-        &larr; Home
-      </Link>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+        <Breadcrumbs
+          items={[
+            { label: "Home", to: "/" },
+            { label: "Sorting" },
+          ]}
+        />
+      </div>
     </div>
   );
 }

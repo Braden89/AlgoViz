@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { QuickSort } from "../algorithms/sorting/quickSort";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { ArrayBars } from "../components/ArrayBars";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { PlayerControls } from "../components/PlayerControls";
 import { usePlayerStore } from "../state/playerStore";
@@ -32,6 +33,17 @@ export default function QuickSortPage() {
   return (
     <AlgorithmLayout
       title="Quick Sort"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Sorting", to: "/algorithms/sorting" },
+              { label: "Quick Sort" },
+            ]}
+          />
+        </div>
+      }
       left={
         <ArrayBars
           step={

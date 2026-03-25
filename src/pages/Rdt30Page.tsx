@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PlayerControls } from "../components/PlayerControls";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { Rdt30View } from "../components/Rdt30View";
@@ -42,23 +42,25 @@ export default function Rdt30Page() {
   return (
     <AlgorithmLayout
       title="Reliable Data Transfer 3.0"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Networking", to: "/algorithms/networking" },
+              { label: "RDT 3.0" },
+            ]}
+          />
+        </div>
+      }
       left={<PseudocodePanel pseudocode={Rdt30.pseudocode} activeLine={step?.line ?? 0} />}
       right={
         <div className="space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-sm text-zinc-300">Overview</div>
-              <div className="mt-2 text-sm text-zinc-400">
-                RDT 3.0 uses sequence numbers, ACKs, and timeouts to achieve reliable delivery over a lossy or corrupt channel.
-              </div>
+          <div>
+            <div className="text-sm text-zinc-300">Overview</div>
+            <div className="mt-2 text-sm text-zinc-400">
+              RDT 3.0 uses sequence numbers, ACKs, and timeouts to achieve reliable delivery over a lossy or corrupt channel.
             </div>
-
-            <Link
-              className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm hover:bg-zinc-900"
-              to="/algorithms/networking"
-            >
-              &larr; Networking
-            </Link>
           </div>
 
           <RdtMetricsPanel meta={visibleMeta} />

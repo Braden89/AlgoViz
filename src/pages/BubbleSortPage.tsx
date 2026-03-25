@@ -1,6 +1,7 @@
 import { BubbleSort } from "../algorithms/sorting/bubbleSort";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { ArrayBars } from "../components/ArrayBars";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { PseudocodePanel } from "../components/PseudocodePanel";
 import { MetricsPanel } from "../components/MetricPanel";
 import { PlayerControls } from "../components/PlayerControls";
@@ -38,6 +39,17 @@ export default function BubbleSortPage() {
   return (
     <AlgorithmLayout
       title="Bubble Sort"
+      headerRight={
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <Breadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Sorting", to: "/algorithms/sorting" },
+              { label: "Bubble Sort" },
+            ]}
+          />
+        </div>
+      }
       left={<ArrayBars step={step ?? { array: currentArray, line: 0, metrics: { comparisons: 0, swaps: 0 } }} />}
       right={
         <div className="space-y-4">
