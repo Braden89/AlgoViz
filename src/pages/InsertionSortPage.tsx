@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { InsertionSort } from "../algorithms/sorting/InsertionSort";
+import { InsertionSort } from "../algorithms/sorting/insertionSort";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { ArrayBars } from "../components/ArrayBars";
 import { Breadcrumbs } from "../components/Breadcrumbs";
