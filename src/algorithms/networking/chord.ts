@@ -115,7 +115,7 @@ function mod(value: number, ringSize: number) {
   return ((value % ringSize) + ringSize) % ringSize;
 }
 
-function inInterval(value: number, start: number, end: number, ringSize: number, inclusiveEnd = false) {
+function inInterval(value: number, start: number, end: number, _ringSize: number, inclusiveEnd = false) {
   if (start < end) {
     return inclusiveEnd ? value > start && value <= end : value > start && value < end;
   }

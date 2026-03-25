@@ -1,4 +1,3 @@
-import React from "react";
 import type { TreeSortMeta } from "../algorithms/trees/treeSort.ts"; 
 
 export function TreeView(props: { meta?: TreeSortMeta }) {

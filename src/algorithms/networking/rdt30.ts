@@ -339,7 +339,7 @@ export const Rdt30 = {
         phase,
         title,
         ...base,
-        nodes,
+        nodes: nodes,
         activePacket,
         eventLog: eventLog.slice(-5),
       };
