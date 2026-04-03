@@ -1,8 +1,4 @@
-type PlotPoint = {
-  x: number;
-  y: number;
-  className?: "default" | "classB";
-};
+import type { FittedLine, PlotPoint } from "../algorithms/machine-learning/types";
 
 type DataPlot2DProps = {
   points: PlotPoint[];
@@ -12,11 +8,7 @@ type DataPlot2DProps = {
   className?: string;
   xDomain?: [number, number];
   yDomain?: [number, number];
-  fittedLine?: {
-    start: PlotPoint;
-    end: PlotPoint;
-    label?: string;
-  };
+  fittedLine?: FittedLine;
 };
 
 type Bounds = {

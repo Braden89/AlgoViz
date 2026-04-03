@@ -18,6 +18,8 @@ import ChordPage from "./pages/ChordPage";
 import MachineLearningPage from "./pages/MachineLearningPage";
 import LinearRegressionPage from "./pages/LinearRegressionPage";
 import GradientDescentPage from "./pages/GradientDescentPage";
+import KNearestNeighborsPage from "./pages/KNearestNeighborsPage";
+import PerceptronPage from "./pages/PerceptronPage";
 
 
 export default function App() {
@@ -43,6 +45,8 @@ export default function App() {
       <Route path="/algorithms/machine-learning" element={<MachineLearningPage />} />
       <Route path="/algorithms/machine-learning/linear-regression" element={<LinearRegressionPage />} />
       <Route path="/algorithms/machine-learning/gradient-descent" element={<GradientDescentPage />} />
+      <Route path="/algorithms/machine-learning/k-nearest-neighbors" element={<KNearestNeighborsPage />} />
+      <Route path="/algorithms/machine-learning/perceptron" element={<PerceptronPage />} />
 
       {/* Optional: redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" replace />} />

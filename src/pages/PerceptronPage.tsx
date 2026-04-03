@@ -2,35 +2,36 @@ import { useState } from "react";
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { DataPlot2D } from "../components/DataPlot2D";
+import { PerceptronDiagram } from "../components/PerceptronDiagram";
 import {
-  GradientDescent,
-  type GradientDescentModelState,
-} from "../algorithms/machine-learning/gradientDescent";
+  Perceptron,
+  type PerceptronModelState,
+} from "../algorithms/machine-learning/perceptron";
 
-export default function GradientDescentPage() {
+export default function PerceptronPage() {
   const [pointCount, setPointCount] = useState(24);
-  const [overlap, setOverlap] = useState(0.25);
+  const [overlap, setOverlap] = useState(0.2);
   const [learningRate, setLearningRate] = useState(0.08);
-  const [points, setPoints] = useState(() => GradientDescent.createDataset(24, 0.25));
-  const [model, setModel] = useState<GradientDescentModelState>(() => GradientDescent.createInitialModel());
+  const [points, setPoints] = useState(() => Perceptron.createDataset(24, 0.2));
+  const [model, setModel] = useState<PerceptronModelState>(() => Perceptron.createInitialModel());
 
-  const metrics = GradientDescent.calculateMetrics(points, model);
-  const boundary = GradientDescent.buildDecisionBoundary(model);
+  const metrics = Perceptron.calculateMetrics(points, model);
+  const boundary = Perceptron.buildDecisionBoundary(model);
 
   const regenerateDataset = (nextCount = pointCount, nextOverlap = overlap) => {
-    setPoints(GradientDescent.createDataset(nextCount, nextOverlap));
-    setModel(GradientDescent.createInitialModel());
+    setPoints(Perceptron.createDataset(nextCount, nextOverlap));
+    setModel(Perceptron.createInitialModel());
   };
 
   const resetModel = () => {
-    setModel(GradientDescent.createInitialModel());
+    setModel(Perceptron.createInitialModel());
   };
 
   const runEpochs = (epochs: number) => {
     setModel((current) => {
       let next = current;
       for (let index = 0; index < epochs; index += 1) {
-        next = GradientDescent.trainOneEpoch(points, next, learningRate);
+        next = Perceptron.trainOneEpoch(points, next, learningRate);
       }
       return next;
     });
@@ -38,14 +39,14 @@ export default function GradientDescentPage() {
 
   return (
     <AlgorithmLayout
-      title="Gradient Descent"
+      title="Perceptron"
       headerRight={
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
           <Breadcrumbs
             items={[
               { label: "Home", to: "/" },
               { label: "Machine Learning", to: "/algorithms/machine-learning" },
-              { label: "Gradient Descent" },
+              { label: "Perceptron" },
             ]}
           />
         </div>
@@ -55,31 +56,33 @@ export default function GradientDescentPage() {
           <div>
             <div className="text-sm text-zinc-300">Overview</div>
             <div className="mt-2 text-sm text-zinc-400">
-              This page uses gradient descent to train a simple linear classifier on two colored classes. As training runs, the decision boundary shifts to reduce classification loss.
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4">
-            <div className="text-sm text-zinc-300">Dataset</div>
-            <div className="mt-2 text-sm text-zinc-400">
-              Blue points are Class A and red points are Class B. The overlap slider controls how mixed the classes are, from easy separation to almost impossible separation.
+              This page shows a single perceptron: one neuron that learns a straight-line decision boundary for two classes. It is the smallest useful neural model and a good stepping stone toward a full network.
             </div>
           </div>
 
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4">
             <div className="text-sm text-zinc-300">Current Model</div>
             <div className="mt-2 grid gap-2 text-sm text-zinc-400">
-              <div>w1 = {GradientDescent.round(model.w1)}</div>
-              <div>w2 = {GradientDescent.round(model.w2)}</div>
-              <div>bias = {GradientDescent.round(model.bias)}</div>
+              <div>w1 = {Perceptron.round(model.w1)}</div>
+              <div>w2 = {Perceptron.round(model.w2)}</div>
+              <div>bias = {Perceptron.round(model.bias)}</div>
               <div>epoch = {model.epoch}</div>
             </div>
           </div>
 
+          <PerceptronDiagram w1={model.w1} w2={model.w2} bias={model.bias} />
+
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4">
-            <div className="text-sm text-zinc-300">Decision Boundary</div>
+            <div className="text-sm text-zinc-300">What It Learns</div>
             <div className="mt-2 text-sm text-zinc-400">
-              The yellow line marks where the classifier is equally unsure between the two classes.
+              The perceptron predicts one class on one side of the line and the other class on the opposite side. When it makes a mistake, it nudges the weights and bias to move the boundary.
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4">
+            <div className="text-sm text-zinc-300">Why It Matters</div>
+            <div className="mt-2 text-sm text-zinc-400">
+              A perceptron is the basic building block for later neural-network visualizations. Once this single unit makes sense, stacking multiple units into layers becomes much easier to explain.
             </div>
           </div>
         </div>
@@ -169,12 +172,12 @@ export default function GradientDescentPage() {
             <div className="text-sm text-zinc-300">Training Metrics</div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-3">
-                <div className="text-[11px] uppercase tracking-wide text-zinc-500">Loss</div>
-                <div className="mt-1 text-lg text-zinc-100">{GradientDescent.round(metrics.loss)}</div>
-              </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-3">
                 <div className="text-[11px] uppercase tracking-wide text-zinc-500">Accuracy</div>
                 <div className="mt-1 text-lg text-zinc-100">{Math.round(metrics.accuracy * 100)}%</div>
+              </div>
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-3">
+                <div className="text-[11px] uppercase tracking-wide text-zinc-500">Mistakes</div>
+                <div className="mt-1 text-lg text-zinc-100">{metrics.mistakes}</div>
               </div>
               <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-3">
                 <div className="text-[11px] uppercase tracking-wide text-zinc-500">Epoch</div>
@@ -182,24 +185,24 @@ export default function GradientDescentPage() {
               </div>
               <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-3">
                 <div className="text-[11px] uppercase tracking-wide text-zinc-500">Overlap</div>
-                <div className="mt-1 text-lg text-zinc-100">{GradientDescent.describeOverlap(overlap)}</div>
+                <div className="mt-1 text-lg text-zinc-100">{Perceptron.describeOverlap(overlap)}</div>
               </div>
             </div>
           </div>
 
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4 text-sm text-zinc-400">
-            Lower overlap usually means lower loss and faster improvement. When overlap gets close to 100%, the classes become hard to separate with a straight boundary.
+            The perceptron works best when the classes are linearly separable. As overlap increases, the line has a harder time finding a clean split, which is exactly why later multi-layer networks become useful.
           </div>
         </div>
       }
       bottom={
         <DataPlot2D
-          title="Two-Class Training Data"
+          title="Single Perceptron Classification View"
           xLabel="Feature x1"
           yLabel="Feature x2"
           points={points}
-          xDomain={GradientDescent.xDomain}
-          yDomain={GradientDescent.yDomain}
+          xDomain={Perceptron.xDomain}
+          yDomain={Perceptron.yDomain}
           fittedLine={boundary}
         />
       }

@@ -14,6 +14,18 @@ const machineLearningAlgorithms = [
     to: "/algorithms/machine-learning/gradient-descent",
     status: "ready" as const,
   },
+  {
+    name: "K-Nearest Neighbors",
+    description: "Classify a query point from the vote of its nearest labeled neighbors.",
+    to: "/algorithms/machine-learning/k-nearest-neighbors",
+    status: "ready" as const,
+  },
+  {
+    name: "Perceptron",
+    description: "Train a single neuron to separate two classes with a straight-line boundary.",
+    to: "/algorithms/machine-learning/perceptron",
+    status: "ready" as const,
+  },
 ];
 
 export default function MachineLearningPage() {
