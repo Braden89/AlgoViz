@@ -15,6 +15,9 @@ import NetworkingPage from "./pages/NetworkingPage";
 import PaxosPage from "./pages/PaxosPage";
 import Rdt30Page from "./pages/Rdt30Page";
 import ChordPage from "./pages/ChordPage";
+import MachineLearningPage from "./pages/MachineLearningPage";
+import LinearRegressionPage from "./pages/LinearRegressionPage";
+import GradientDescentPage from "./pages/GradientDescentPage";
 
 
 export default function App() {
@@ -37,6 +40,9 @@ export default function App() {
       <Route path="/algorithms/networking/paxos" element={<PaxosPage />} />
       <Route path="/algorithms/networking/rdt-3-0" element={<Rdt30Page />} />
       <Route path="/algorithms/networking/chord" element={<ChordPage />} />
+      <Route path="/algorithms/machine-learning" element={<MachineLearningPage />} />
+      <Route path="/algorithms/machine-learning/linear-regression" element={<LinearRegressionPage />} />
+      <Route path="/algorithms/machine-learning/gradient-descent" element={<GradientDescentPage />} />
 
       {/* Optional: redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" replace />} />
