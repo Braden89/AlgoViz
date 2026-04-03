@@ -10,7 +10,7 @@ import {
 export default function GradientDescentPage() {
   const [pointCount, setPointCount] = useState(24);
   const [overlap, setOverlap] = useState(0.25);
-  const [learningRate, setLearningRate] = useState(0.08);
+  const [learningRate, setLearningRate] = useState(0.02);
   const [points, setPoints] = useState(() => GradientDescent.createDataset(24, 0.25));
   const [model, setModel] = useState<GradientDescentModelState>(() => GradientDescent.createInitialModel());
 

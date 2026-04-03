@@ -11,7 +11,7 @@ import {
 export default function PerceptronPage() {
   const [pointCount, setPointCount] = useState(24);
   const [overlap, setOverlap] = useState(0.2);
-  const [learningRate, setLearningRate] = useState(0.08);
+  const [learningRate, setLearningRate] = useState(0.02);
   const [points, setPoints] = useState(() => Perceptron.createDataset(24, 0.2));
   const [model, setModel] = useState<PerceptronModelState>(() => Perceptron.createInitialModel());
 
@@ -56,7 +56,7 @@ export default function PerceptronPage() {
           <div>
             <div className="text-sm text-zinc-300">Overview</div>
             <div className="mt-2 text-sm text-zinc-400">
-              This page shows a single perceptron: one neuron that learns a straight-line decision boundary for two classes. It is the smallest useful neural model and a good stepping stone toward a full network.
+              This page shows a single perceptron: one neuron that learns a straight-line decision boundary for two classes. The inputs are zero-centered now, so the learned boundary is easier to interpret instead of being pulled by an all-positive coordinate system.
             </div>
           </div>
 
@@ -75,7 +75,7 @@ export default function PerceptronPage() {
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4">
             <div className="text-sm text-zinc-300">What It Learns</div>
             <div className="mt-2 text-sm text-zinc-400">
-              The perceptron predicts one class on one side of the line and the other class on the opposite side. When it makes a mistake, it nudges the weights and bias to move the boundary.
+              The perceptron predicts one class on one side of the line and the other class on the opposite side. When it makes a mistake, it nudges the weights and bias to move the boundary. Centering the features around zero makes that boundary look more balanced.
             </div>
           </div>
 
@@ -192,6 +192,7 @@ export default function PerceptronPage() {
 
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-4 text-sm text-zinc-400">
             The perceptron works best when the classes are linearly separable. As overlap increases, the line has a harder time finding a clean split, which is exactly why later multi-layer networks become useful.
+            With zero-centered inputs, the weights and bias are also easier to reason about.
           </div>
         </div>
       }

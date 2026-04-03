@@ -47,9 +47,9 @@ export function PerceptronDiagram({ w1, w2, bias }: PerceptronDiagramProps) {
           <text x="68" y="66" textAnchor="middle" fontSize="15" fill="rgb(228 228 231)">x1</text>
           <text x="68" y="162" textAnchor="middle" fontSize="15" fill="rgb(228 228 231)">x2</text>
           <text x="228" y="115" textAnchor="middle" fontSize="15" fill="rgb(228 228 231)">weights</text>
-          <text x="346" y="104" textAnchor="middle" fontSize="15" fill="rgb(250 204 21)">Σ</text>
+          <text x="346" y="104" textAnchor="middle" fontSize="14" fill="rgb(250 204 21)">sum</text>
           <text x="346" y="124" textAnchor="middle" fontSize="11" fill="rgb(212 212 216)">step</text>
-          <text x="458" y="115" textAnchor="middle" fontSize="15" fill="rgb(228 228 231)">ŷ</text>
+          <text x="458" y="115" textAnchor="middle" fontSize="15" fill="rgb(228 228 231)">y</text>
 
           <text x="142" y="60" fontSize="12" fill="rgb(96 165 250)">w1 {formatValue(w1)}</text>
           <text x="142" y="154" fontSize="12" fill="rgb(248 113 113)">w2 {formatValue(w2)}</text>
