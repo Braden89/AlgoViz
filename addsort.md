@@ -1,227 +1,323 @@
-# 🧠 AlgoViz — Adding a New Sorting Algorithm
+# AlgoVis - Adding Any Algorithm
 
-This document describes **everything required** to add a new sorting algorithm to **AlgoViz**, from algorithm implementation to UI integration.
+This guide replaces the old sorting-only checklist. Use it when adding:
 
----
+- a new algorithm inside an existing category
+- a new visualization style for an algorithm
+- a brand-new category on the home screen
 
-## 1️⃣ Implement the Algorithm Definition
+The current project has two main integration patterns, and the right one depends on the kind of visualization you are building.
 
-**Location**
+## 1. Choose the Right Pattern First
 
-```
+### Pattern A: Step-by-step playback
+
+Use this for algorithms that animate through discrete states with:
+
+- `PlayerControls`
+- `PseudocodePanel`
+- metrics that change over time
+- a current step stored in `usePlayerStore`
+
+Examples:
+
+- sorting: `src/algorithms/sorting`
+- tree sort: `src/algorithms/trees/treeSort.ts`
+- graph search: `src/algorithms/search`
+- networking simulations like Paxos and RDT
+
+### Pattern B: Interactive playground / computed view
+
+Use this for algorithms that are better shown as a live sandbox instead of a prerecorded step list.
+
+Examples:
+
+- `src/pages/LinearRegressionPage.tsx`
+- `src/pages/GradientDescentPage.tsx`
+- `src/pages/KNearestNeighborsPage.tsx`
+- `src/pages/PerceptronPage.tsx`
+
+These pages usually keep their own local React state and render custom components such as `DataPlot2D`, instead of using the player store.
+
+## 2. Pick the File Locations
+
+Add the core logic in the category folder that matches the feature:
+
+```txt
 src/algorithms/sorting/<algorithmName>.ts
+src/algorithms/search/<algorithmName>.ts
+src/algorithms/networking/<algorithmName>.ts
+src/algorithms/machine-learning/<algorithmName>.ts
+src/algorithms/trees/<algorithmName>.ts
 ```
 
-Every sorting algorithm must export an `AlgorithmDefinition`.
+Add the page here:
 
-```ts
-export const MySort: AlgorithmDefinition<MetaType> = { ... };
+```txt
+src/pages/<AlgorithmName>Page.tsx
 ```
 
-### Required fields
+If the visualization needs a new renderer, add it under:
 
-```ts
-{
-  id: string;              // unique, URL-safe identifier (kebab-case)
-  name: string;            // display name
-  category: "sorting";     // always "sorting"
-  pseudocode: string[];    // line-by-line pseudocode
-  generateSteps(input): Step[];
-}
+```txt
+src/components/
 ```
 
----
+## 3. If You Are Building a Step-Based Algorithm
 
-## 2️⃣ Define Algorithm-Specific Metadata (Optional)
+### Recommended shape
 
-If the algorithm needs extra visualization data (e.g. pivot, pointers, ranges), define a **meta type**:
+For array-based algorithms, use the shared types from `src/algorithms/types.ts`:
 
 ```ts
-type MySortMeta = {
-  pivotIndex?: number;
-  left?: number;
-  right?: number;
-};
+import type { AlgorithmDefinition, Step } from "../types";
 ```
 
-Use generics:
+The shared step shape is:
 
 ```ts
-AlgorithmDefinition<MySortMeta>
-Step<MySortMeta>
-```
-
-Algorithms without extra visualization needs should use `Step<undefined>`.
-
----
-
-## 3️⃣ Generate Steps Correctly
-
-Inside `generateSteps(input)`:
-
-### Required behavior
-
-* Clone the input array before mutating
-* Never mutate an array **after** pushing a step
-* Increment metrics manually
-
-### Required `Step` fields
-
-```ts
-{
+type Step<M = undefined> = {
   array: number[];
-  line: number;          // index into pseudocode array
+  line: number;
+  active?: number[];
   metrics: {
     comparisons: number;
     swaps: number;
   };
-}
+  note?: string;
+  swap?: [number, number];
+  meta?: M;
+  inspector?: StepInspectorItem[];
+};
 ```
 
-### Optional `Step` fields
+### Important notes
 
-Use only when relevant:
+- `array` can be empty for non-array visualizations like graphs or networking.
+- algorithm-specific visualization state should go in `meta`.
+- sidebar details should go in `inspector`.
+- `line` must match the active pseudocode line index.
+- clone any mutable state before pushing a step.
+- never mutate previously-pushed step data.
 
-* `active?: number[]`
-* `swap?: [number, number]`
-* `note?: string`
-* `meta?: MetaType` (algorithm-specific)
+### `AlgorithmDefinition` caveat
 
----
+`AlgorithmDefinition` currently allows:
 
-## 4️⃣ Visualization Compatibility (`ArrayBars`)
-
-* `ArrayBars` always accepts `Step<any>`
-* Algorithm-specific visuals must live in `step.meta`
-* **Do not add fields directly to `Step`** for one algorithm
-
-This ensures:
-
-* Bubble / Insertion Sort remain simple
-* Quick Sort can show pivot, ranges, pointers
-
----
-
-## 5️⃣ Create a Page Component
-
-**Location**
-
-```
-src/pages/<AlgorithmName>Page.tsx
+```ts
+"sorting" | "graphs" | "trees" | "dp" | "networking"
 ```
 
-### Required structure
+That union lives in `src/algorithms/types.ts`.
 
-Every algorithm page must use:
+If you want a new step-driven category that is not listed there, or you want machine-learning algorithms to use `AlgorithmDefinition`, update that union first.
 
-* `AlgorithmLayout`
-* `ArrayBars`
-* `PseudocodePanel`
-* `MetricsPanel`
-* `PlayerControls`
+### Minimal template
 
-### Required imports
+```ts
+export const MyAlgorithm: AlgorithmDefinition<MyMeta> = {
+  id: "my-algorithm",
+  name: "My Algorithm",
+  category: "sorting",
+  pseudocode: [
+    "step 1",
+    "step 2",
+  ],
+  generateSteps(input) {
+    const data = [...input];
+    const steps: Step<MyMeta>[] = [];
+    const metrics = { comparisons: 0, swaps: 0 };
+
+    steps.push({
+      array: [...data],
+      line: 0,
+      metrics: { ...metrics },
+      note: "Start",
+    });
+
+    return steps;
+  },
+};
+```
+
+### When not to use `AlgorithmDefinition`
+
+Some current step-based modules, such as DFS and Paxos, export plain objects with custom `generateSteps(...)` signatures because they do not operate on `number[]` input.
+
+That is acceptable in the current codebase. If your algorithm needs graph input, protocol config, or another structured input, follow the DFS/Paxos style instead of forcing it into the array-only signature.
+
+## 4. Build the Page
+
+Most algorithm pages use `AlgorithmLayout`:
 
 ```ts
 import { AlgorithmLayout } from "../components/AlgorithmLayout";
-import { ArrayBars } from "../components/ArrayBars";
-import { PseudocodePanel } from "../components/PseudocodePanel";
-import { MetricsPanel } from "../components/MetricPanel";
-import { PlayerControls } from "../components/PlayerControls";
-import { usePlayerStore } from "../state/playerStore";
 ```
 
----
+From there, choose the pieces that fit the visualization.
 
-## 6️⃣ Hook Algorithm Into Player Store
+### Common step-based page pieces
 
-Use the player store to load steps:
+- `PseudocodePanel`
+- `PlayerControls`
+- `MetricsPanel`, `SearchMetricsPanel`, `NetworkingMetricsPanel`, or another specialized panel
+- `StepInspector`
+- a visual component such as `ArrayBars`, `GraphView`, `TreeView`, `PaxosView`, or `Rdt30View`
+- `usePlayerStore`
 
-```ts
-onClick={() => setSteps(MySort.generateSteps(seedArray))}
-```
+### Common interactive page pieces
 
-The store accepts:
+- `AlgorithmLayout`
+- local `useState(...)`
+- custom plotting or diagram components
+- computed text panels instead of playback controls
 
-```ts
-Step<any>[]
-```
+### Rule of thumb
 
-No casting is required.
+- if the experience has Play / Pause / Step, use the player store
+- if the experience is a live sandbox with sliders, selectors, and instant recomputation, use local page state
 
----
+## 5. Wire the Page Into Routing
 
-## 7️⃣ Add Route
+Add the page import and route in `src/App.tsx`.
 
-**Location**
-
-```
-src/App.tsx
-```
-
-Add:
+Examples from the current app:
 
 ```tsx
-<Route path="/algorithms/sorting/my-sort" element={<MySortPage />} />
+<Route path="/algorithms/sorting/bubble" element={<BubbleSortPage />} />
+<Route path="/algorithms/networking/paxos" element={<PaxosPage />} />
+<Route path="/algorithms/machine-learning/linear-regression" element={<LinearRegressionPage />} />
+<Route path="/graphs/dfs" element={<DfsPage />} />
 ```
 
----
+### Route conventions already in use
 
-## 8️⃣ Add to Sorting Catalog
+- sorting: `/algorithms/sorting/...`
+- networking: `/algorithms/networking/...`
+- machine learning: `/algorithms/machine-learning/...`
+- graphs: `/graphs/...`
 
-**Location**
+Graphs are currently routed from `/graphs`, not `/algorithms/graphs`.
 
-```
-src/pages/SortingCatalogPage.tsx
-```
+## 6. Add the Algorithm to the Category Page
 
-Add one entry:
+Each category page has its own list of cards.
+
+Current locations:
+
+- sorting: `src/pages/SortingCatalogPage.tsx`
+- graphs: `src/pages/GraphsPage.tsx`
+- networking: `src/pages/NetworkingPage.tsx`
+- machine learning: `src/pages/MachineLearningPage.tsx`
+
+Add one new object to the relevant list and point it at the new route.
+
+Examples:
+
+- `SORTING_ALGORITHMS`
+- `graphAlgorithms`
+- `networkingAlgorithms`
+- `machineLearningAlgorithms`
+
+## 7. If You Are Adding a Brand-New Category
+
+You need more than just one algorithm file.
+
+### Create the category page
+
+Add a new page in `src/pages`, similar to the existing catalog pages.
+
+### Add a route
+
+Register the category landing page in `src/App.tsx`.
+
+### Add a home screen entry
+
+Update `src/pages/Home.tsx` so users can reach the new category.
+
+### Decide whether shared types need expanding
+
+Update `src/algorithms/types.ts` if the new category should be part of the shared `AlgorithmDefinition["category"]` union.
+
+### Choose route naming deliberately
+
+Match the style of the existing app unless you are intentionally standardizing routes. Right now the repo mixes:
+
+- `/algorithms/<category>/...`
+- `/graphs/...`
+
+If you change that structure, expect follow-up edits beyond just the new algorithm.
+
+## 8. Choose the Right Visualization Component
+
+Do not assume every algorithm uses `ArrayBars`.
+
+Current visualization examples:
+
+- `ArrayBars` for array sorting states
+- `TreeView` for tree-backed sorting
+- `GraphView` for DFS/BFS
+- `PaxosView` and `Rdt30View` for networking simulations
+- `DataPlot2D` for machine-learning plots
+
+If no current component fits, create a new one in `src/components` and keep algorithm-specific display state inside page props or `step.meta`.
+
+## 9. Metrics and Inspector Guidance
+
+The shared metrics type is still:
 
 ```ts
 {
-  name: "My Sort",
-  path: "/algorithms/sorting/my-sort",
-  description: "One-line explanation",
-  tags: ["Time complexity", "Stability", "Notes"],
+  comparisons: number;
+  swaps: number;
 }
 ```
 
-No UI changes are required.
+For non-sorting algorithms, the project currently reuses those fields as generic counters when needed. For example, networking code uses `comparisons` as a message/event count.
 
----
+That is acceptable for consistency with the current UI, but if you need richer metrics:
 
-## 9️⃣ Naming Conventions
+- add a category-specific metrics panel
+- keep specialized values in `meta` and/or `inspector`
+- avoid overloading shared types more than necessary
 
-| Item             | Convention                           |
-| ---------------- | ------------------------------------ |
-| Algorithm IDs    | kebab-case                           |
-| File names       | `camelCase.ts`, `PascalCasePage.tsx` |
-| Meta fields      | camelCase                            |
-| Pseudocode lines | Must align with `line` indexes       |
+## 10. Practical Checklist
 
----
+Before you consider the feature done, verify:
 
-## 🔟 Minimal Test Checklist
+- the algorithm or helper module lives in the correct category folder
+- the page renders without TypeScript errors
+- the route is registered in `src/App.tsx`
+- the category landing page links to the new route
+- the home page links to the category if needed
+- playback works if the page is step-based
+- pseudocode highlighting matches the intended line numbers
+- the chosen visual component updates correctly
+- metrics and inspector values make sense
+- resetting or regenerating data clears stale playback state when needed
 
-Before considering the algorithm complete:
+## 11. Good Reference Files
 
-* [ ] Steps generate without runtime errors
-* [ ] Pseudocode highlights correctly
-* [ ] Array bars update every step
-* [ ] Metrics increment correctly
-* [ ] Player controls work (play/pause/step/reset)
-* [ ] Works with random arrays (size 5–80)
+Use these as models when adding similar features:
 
----
+- array playback: `src/algorithms/sorting/bubbleSort.ts`
+- tree-backed playback: `src/pages/TreeSortPage.tsx`
+- graph playback with custom meta: `src/pages/DfsPage.tsx`
+- networking simulation with custom config: `src/pages/PaxosPage.tsx`
+- interactive machine-learning page: `src/pages/LinearRegressionPage.tsx`
 
-## 🏁 Result
+## 12. Summary
 
-Once all steps above are complete, the algorithm:
+Adding a new algorithm in AlgoVis usually means touching four layers:
 
-* is fully visualized
-* integrates cleanly with AlgoViz
-* requires **no changes** to shared infrastructure
+1. algorithm logic in `src/algorithms/...`
+2. a page in `src/pages/...`
+3. routing in `src/App.tsx`
+4. a category listing page, plus `Home.tsx` if the category is new
 
----
+The main decision is whether the algorithm should be:
 
-*Last updated: AlgoViz Quick Sort integration*
+- a step-based playback visualization
+- a live interactive playground
+
+Start there, then follow the matching pattern already used in the repo.

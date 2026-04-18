@@ -1,6 +1,6 @@
-# AlgoViz
+# AlgoVis
 
-AlgoViz is a React + TypeScript web app for visualizing algorithms step by step. It lets you generate sample data, play through each algorithm's execution, and inspect pseudocode, state changes, and basic metrics as the algorithm runs.
+AlgoVis is a React + TypeScript web app for visualizing algorithms step by step. It lets you generate sample data, play through each algorithm's execution, and inspect pseudocode, state changes, and basic metrics as the algorithm runs.
 
 ## Features
 
@@ -45,7 +45,7 @@ Make sure you have these installed:
 
 ## Installation
 
-From the `algoviz` folder, install dependencies:
+From the `algovis` folder, install dependencies:
 
 ```bash
 npm install
@@ -59,10 +59,10 @@ Start the development server:
 npm run dev
 ```
 
-Vite will print a local URL in the terminal, usually:
+Vite will print a local URL in the terminal:
 
 ```text
-http://localhost:5173
+http://localhost:8080
 ```
 
 ## Other Useful Commands
@@ -88,7 +88,7 @@ npm run lint
 ## Project Structure
 
 ```text
-algoviz/
+algovis/
   src/
     algorithms/    Algorithm implementations and step generation
     components/    Shared visualization and UI components

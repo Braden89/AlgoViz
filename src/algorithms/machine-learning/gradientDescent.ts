@@ -12,8 +12,8 @@ export type GradientDescentMetrics = {
   accuracy: number;
 };
 
-export const GRADIENT_DESCENT_X_DOMAIN: [number, number] = [0, 12];
-export const GRADIENT_DESCENT_Y_DOMAIN: [number, number] = [0, 48];
+export const GRADIENT_DESCENT_X_DOMAIN: [number, number] = [-6, 6];
+export const GRADIENT_DESCENT_Y_DOMAIN: [number, number] = [-24, 24];
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -58,11 +58,11 @@ function createInitialModel(): GradientDescentModelState {
 function createDataset(count: number, overlap: number): ClassifiedPoint[] {
   const classACount = Math.ceil(count / 2);
   const classBCount = Math.floor(count / 2);
-  const centerAY = randomBetween(16, 31);
+  const centerAY = randomBetween(-8, 8);
   const centerBY = centerAY + randomBetween(-5, 5);
   const separation = 7.2 * (1 - overlap);
-  const centerAX = 6 - separation / 2;
-  const centerBX = 6 + separation / 2;
+  const centerAX = -separation / 2;
+  const centerBX = separation / 2;
   const spread = 0.9 + overlap * 2.4;
 
   return [

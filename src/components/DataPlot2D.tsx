@@ -92,6 +92,8 @@ export function DataPlot2D({
   });
 
   const hasSecondClass = points.some((point) => point.className === "classB");
+  const zeroX = bounds.minX <= 0 && bounds.maxX >= 0 ? scaleX(0) : null;
+  const zeroY = bounds.minY <= 0 && bounds.maxY >= 0 ? scaleY(0) : null;
 
   return (
     <div className={`rounded-2xl border border-zinc-800 bg-zinc-950/30 p-4 ${className}`.trim()}>
@@ -175,6 +177,30 @@ export function DataPlot2D({
               </g>
             );
           })}
+
+          {zeroX !== null ? (
+            <line
+              x1={zeroX}
+              y1={margin.top}
+              x2={zeroX}
+              y2={height - margin.bottom}
+              stroke="rgba(250, 204, 21, 0.35)"
+              strokeWidth="1.5"
+              strokeDasharray="6 4"
+            />
+          ) : null}
+
+          {zeroY !== null ? (
+            <line
+              x1={margin.left}
+              y1={zeroY}
+              x2={width - margin.right}
+              y2={zeroY}
+              stroke="rgba(250, 204, 21, 0.35)"
+              strokeWidth="1.5"
+              strokeDasharray="6 4"
+            />
+          ) : null}
 
           <line
             x1={margin.left}
