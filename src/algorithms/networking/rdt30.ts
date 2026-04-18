@@ -162,7 +162,7 @@ export function createRdtConfig(scenarioId: RdtScenarioId): RdtConfig {
   };
 }
 
-function createNodes(meta: Omit<RdtMeta, "phase" | "title" | "eventLog" | "activePacket">): RdtNodeState[] {
+function createNodes(meta: Omit<RdtMeta, "phase" | "title" | "eventLog" | "activePacket" | "nodes">): RdtNodeState[] {
   return [
     {
       id: "S",
